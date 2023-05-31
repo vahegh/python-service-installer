@@ -1,0 +1,31 @@
+{
+    "install_type": "binary",
+
+    "install_settings": {
+
+        "title": "Mattermost",
+        "version": "7.10.2",
+        "pkg_name": "mattermost",
+        "archive_url": "https://releases.mattermost.com/{}/mattermost-{}-linux-amd64.tar.gz",
+        "data_dir": "data",
+        "service_file_data": "[Unit]\nDescription=Mattermost\nAfter=network.target\n\n[Service]\nType=notify\nExecStart=/opt/mattermost/bin/mattermost\nTimeoutStartSec=3600\nKillMode=mixed\nRestart=always\nRestartSec=10\nWorkingDirectory=/opt/mattermost\nUser=mattermost\nGroup=mattermost\nLimitNOFILE=49152\n\n[Install]\nWantedBy=multi-user.target",
+        "config_file_path": "config/config.json",
+        "database": "postgresql"
+    },
+
+    "params": [
+        {
+            "config_key": "SqlSettings|DataSource",
+            "value": "postgres://{db_user}:{db_pass}@localhost:5432/{db_name}?sslmode=disable&connect_timeout=10"
+        },
+        {
+            "config_key": "SqlSettings|DriverName",
+            "value": "{database}"
+        }, 
+        {
+            "config_key": "ServiceSettings|SiteURL",
+            "value": "localhost:8065"
+        }
+    
+    ]
+}
