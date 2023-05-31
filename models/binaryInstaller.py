@@ -1,12 +1,16 @@
-from basemodel import ServiceInstaller
-from dbInstaller import DBInstaller
+from models.basemodel import ServiceInstaller
+from models.dbInstaller import DBInstaller
 import os
 import requests
 import apt_inst
 import pwd, grp
 import subprocess
+import shutil
 from pystemd.systemd1 import Unit
+from pystemd import dbusexc
 import json
+from passlib import pwd
+
 
 
 class BinaryInstaller(ServiceInstaller):
@@ -20,7 +24,8 @@ class BinaryInstaller(ServiceInstaller):
 
         self.config_params = config_params
 
-        self.service_dir = f"/opt/{self.pkg_name}"
+        self.base_dir = "/opt"
+        self.service_dir = f"{self.base_dir}/{self.pkg_name}"
         self.data_dir = f"{self.service_dir}/{data_dir}"
 
         self.service_file_path = f"/etc/systemd/system/{self.pkg_name}.service"
@@ -36,6 +41,7 @@ class BinaryInstaller(ServiceInstaller):
             self.database = database
             self.db_name = self.pkg_name
             self.db_user = self.pkg_name
+            self.db_pass = pwd.genword(entropy=None, length=12)
 
             
 
@@ -44,22 +50,43 @@ class BinaryInstaller(ServiceInstaller):
     
 
     def install_archive(self):
-        response = requests.get(self.archive_url)
-        with open (self.archive_file, "w") as f:
-            f.write(response.content)
 
-        apt_inst.TarFile(self.archive_file).extractall(self.service_dir)
+        if not os.path.isdir(self.service_dir):
+            print(f"{self.service_dir} directory doesn't exist. Creating now.")
+            os.mkdir(self.service_dir)
+
+        if not os.path.isfile(self.archive_file):
+            print("Downloading archive...")
+            response = requests.get(self.archive_url)
+
+            print(f"Done. Writing to {self.archive_file}")
+            with open (self.archive_file, "wb") as f:
+                f.write(response.content)
+
+        print(f"Done. Extracting archive to {self.service_dir}")
+
+        apt_inst.TarFile(self.archive_file).extractall(self.base_dir)
+
+        # os.remove(self.archive_file)
+
+        print("Done.")
 
 
     def create_user(self):
-        if pwd.getpwnam(self.user_name) and grp.getgrnam(self.user_name):
-            print(f"{self.user_name} user and group exist.")
-        else:
+        try:
+            pwd.getpwnam(self.user_name)
+            grp.getgrnam(self.user_name)
+
+        except Exception:
             print(f"Creating {self.user_name} user and group.")
             subprocess.run(['useradd', '--system', '--user-group', self.user_name])
 
+        else:
+            print(f"{self.user_name} user and group exist.")
 
-    def configure_dirs(self):        
+
+    def configure_dirs(self):
+
         if not os.path.isdir(self.data_dir):
             print(f"{self.data_dir} directory doesn't exist. Creating now.")
             os.mkdir(self.data_dir)
@@ -69,18 +96,9 @@ class BinaryInstaller(ServiceInstaller):
 
 
     def configure_systemd(self):
-        with open (self.service_file_path) as f:
+        with open (self.service_file_path, "w") as f:
             f.write(self.service_file_data)
         subprocess.run(['systemctl', 'enable', f'{self.pkg_name}.service'])
-
-
-    def service_start(self):
-        self.systemd.Unit.Start()
-
-    def service_stop(self):
-        self.systemd.Unit.Stop()
-
-
 
     def check_status(self):
         status = self.systemd.Unit.ActiveState
@@ -96,11 +114,9 @@ class BinaryInstaller(ServiceInstaller):
                 self.database,
                 self.db_name,
                 self.db_user,
-                None
+                self.db_pass
             )
             database_service.install_service()
-            database_service.configure_db()
-
 
     def install_service(self):
         if self.check_installed():
@@ -114,13 +130,14 @@ class BinaryInstaller(ServiceInstaller):
             self.configure_systemd()
             self.configure_service()
 
-            self.service_start()
+            self.systemd.Unit.Start(b'replace')
  
 
     def configure_service(self):
         
         variables = vars()
         variables.update(self.__dict__)
+        
 
         with open(self.config_file_path, "r") as f:
             default_config_dict = json.load(f)
@@ -144,3 +161,29 @@ class BinaryInstaller(ServiceInstaller):
 
         apply_configuration()
         save_configuration()
+
+    def remove_service(self):
+
+        try:
+            self.systemd.Unit.Stop(b'replace')
+        except dbusexc.DBusNoSuchUnitError:
+            pass
+
+        subprocess.run(['systemctl', 'disable', f'{self.pkg_name}.service'])
+
+        if self.database:
+            database_service = DBInstaller(
+                self.database,
+                None,
+                self.database,
+                self.database,
+                self.db_name,
+                self.db_user,
+                None
+            )
+            database_service.remove_service()
+
+        subprocess.run(['userdel', self.user_name])
+        shutil.rmtree(self.service_dir, ignore_errors=True)
+        shutil.rmtree(self.service_file_path, ignore_errors=True)
+        print(f"Removed {self.title}.")

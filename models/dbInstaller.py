@@ -1,44 +1,42 @@
-from packageInstaller import PackageInstaller
+from models.packageInstaller import PackageInstaller
 import subprocess
-from passlib import pwd
 
 
 class DBInstaller(PackageInstaller):
-    def __init__(self, title: str, version: str, pkg_name: str, db_engine: str, db_name: str, db_user: str, db_pass: None):
+    def __init__(self, title: str, version: str, pkg_name: str, db_engine: str, db_name: str, db_user: str, db_pass):
         super().__init__(title, version, pkg_name)
 
         self.db_name = db_name
         self.db_user = db_user
-        if db_pass:
-            self.db_pass = db_pass
-        else:
-            self.db_pass = pwd.genword(None, 12)
-
+        self.db_pass = db_pass
 
         if db_engine == "mysql" or db_engine == "mariadb":
 
             self.db_command = ['mysql', '-e']
 
-            create_user = f"CREATE USER '{db_user}'@'localhost' IDENTIFIED BY '{db_pass}';"
-            create_db = f"CREATE DATABASE {db_name};"
-            grant_privileges = f"GRANT ALL PRIVILEGES ON {db_name}.* TO '{db_user}'@'localhost';"
-            flush_privileges = "FLUSH PRIVILEGES;"
+            self.create_user = f"CREATE USER '{db_user}'@'localhost' IDENTIFIED BY '{self.db_pass}';"
+            self.create_db = f"CREATE DATABASE {db_name};"
+            self.grant_privileges = f"GRANT ALL PRIVILEGES ON {db_name}.* TO '{db_user}'@'localhost';"
+            self.flush_privileges = "FLUSH PRIVILEGES;"
+
+            self.delete_user = f"DROP USER IF EXISTS '{db_user}'@'localhost';"
+            self.delete_db = f"DROP DATABASE IF EXISTS {db_name};"
 
         elif db_engine == "postgresql":
 
             self.db_command = ['sudo', '-u', 'postgres', 'psql', '-c']
 
-            create_user = f"CREATE USER {db_user} WITH PASSWORD '{db_pass}';"
-            create_db = f"CREATE DATABASE {db_name};"
-            grant_privileges = f"GRANT ALL PRIVILEGES ON DATABASE {db_name} TO {db_user};"
-            flush_privileges = None
+            self.create_user = f"CREATE USER {db_user} WITH PASSWORD '{self.db_pass}';"
+            self.create_db = f"CREATE DATABASE {db_name} OWNER {db_user};"
+            self.grant_privileges = f"GRANT ALL PRIVILEGES ON DATABASE {db_name} TO {db_user};"
+            self.flush_privileges = f"GRANT USAGE, CREATE ON SCHEMA PUBLIC TO {db_user}"
+
+            self.delete_user = f"DROP USER IF EXISTS {db_user};"
+            self.delete_db = f"DROP DATABASE IF EXISTS {db_name};"
+
 
         else:
             raise ValueError("Database engine must be one of: mysql, postgresql, mariadb")
-        
-
-        self.queries = []
-        self.queries.extend([create_user, create_db, grant_privileges, flush_privileges])
 
 
     def configure_db(self):
@@ -48,10 +46,31 @@ class DBInstaller(PackageInstaller):
                 command = self.db_command + [q]
                 process = subprocess.run(command)
                 process.check_returncode()
+
+
+    def install_service(self):
+        # super().install_service()
+
+        self.queries = []
+        self.queries.extend([self.create_user, self.create_db, self.grant_privileges, self.flush_privileges])
+
+        self.configure_db()
+
         print(f"""Configured database.
         Database: {self.db_name}
         User: {self.db_user}
         Password: {self.db_pass}""")
+
+
+    def remove_service(self):
+
+        self.queries = []
+        self.queries.extend([self.delete_db, self.delete_user])
+
+        self.configure_db()
+
+        print(f"Removed database {self.db_name} and user {self.db_user}")
+
 
 
 # installer = DBInstaller(title="PostgreSQL", version="", pkg_name="postgresql-14", db_engine="postgresql", db_name="testing1", db_user="testing", db_pass="test1234")

@@ -1,4 +1,4 @@
-from basemodel import ServiceInstaller
+from models.basemodel import ServiceInstaller
 import apt
 from os import environ as env
 
