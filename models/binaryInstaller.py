@@ -127,9 +127,7 @@ class BinaryInstaller(ServiceInstaller):
 
 
         def apply_configuration():
-
             for p in self.config_params:
-
                 obj_names = p["config_key"].split("|")
                 key = obj_names.pop()
 
@@ -138,9 +136,7 @@ class BinaryInstaller(ServiceInstaller):
 
                 for name in obj_names:
                     obj = obj[name]
-
                 obj[key] = value
-                    
 
         def save_configuration():
             with open(self.config_file_path, "w") as f:
