@@ -19,10 +19,6 @@
             "value": "postgres://{db_user}:{db_pass}@localhost:5432/{db_name}?sslmode=disable&connect_timeout=10"
         },
         {
-            "config_key": "SqlSettings|DriverName",
-            "value": "{database}"
-        }, 
-        {
             "config_key": "ServiceSettings|SiteURL",
             "value": "localhost:8065"
         }
