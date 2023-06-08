@@ -1,43 +1,46 @@
-import configparser
 import json
-import yaml
-
-class ConfigManager():
-
-    def __init__(self, config_type: str, config_file_path: str, config_params: dict):
-        self.config_type = config_type
-        self.config_file_path = config_file_path
-        self.config_params = config_params
+import configparser
 
 
-    def dict_to_ini(self):
-        if self.config_type == "ini":
-            config = configparser.ConfigParser()
-            for section, settings in self.config_params.items():
-                config.add_section(section)
-                for key, value in settings.items():
+def update_ini_file(config_file_path, config_params):
+    # Read the existing INI file
+    config = configparser.ConfigParser()
+    config.optionxform = lambda option: option
+    config.read(config_file_path)
+
+    # Update the options in the INI file
+    for section, settings in config_params.items():
+        if config.has_section(section):
+            for key, value in settings.items():
+                if config.has_option(section, key):
                     config.set(section, key, str(value))
-            return config
+                else:
+                    print(f"Option '{key}' not found in section '{section}'")
+        else:
+            print(f"Section '{section}' not found")
+
+    # Write the updated configuration back to the INI file
+    with open(config_file_path, 'w') as configfile:
+        config.write(configfile, False)
 
 
-    def ini_to_dict(self):
-        config_dict = {}
-        for section in self.config_file_path.sections():
-            config_dict[section] = {}
-            for key, value in self.config_file_path.items(section):
-                config_dict[section][key] = value
-        return config_dict
+def update_json_file(config_file_path, config_params):
+    # Read the existing JSON file
+    with open(config_file_path, 'r') as f:
+        data = json.load(f)
 
+    # Update values inside the file
+    def update_values(data, config_params):
+        for k, v in config_params.items():
+            if k in data:
+                if isinstance(v, dict) and isinstance(data[k], dict):
+                    update_values(data[k], v)
+                else:
+                    data[k] = v
+            else:
+                data[k] = v
+    update_values(data, config_params)
 
-
-    def dict_to_json(config_dict):
-        return json.dumps(config_dict)
-
-    def json_to_dict(config_json):
-        return json.loads(config_json)
-
-    def dict_to_yaml(config_dict):
-        return yaml.dump(config_dict)
-
-    def yaml_to_dict(config_yaml):
-        return yaml.safe_load(config_yaml)
+    # Write the updated configuration back to the JSON file
+    with open(config_file_path, 'w') as f:
+        json.dump(data, f, indent=4)
