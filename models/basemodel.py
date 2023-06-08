@@ -7,7 +7,7 @@ class Package():
     pkg_name: str
     version: str
     dependencies: list
-    config_params: list
+    config_params: dict
 
 
 class Installer(ABC):
