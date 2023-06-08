@@ -1,5 +1,4 @@
 from os import path, mkdir
-import json
 import requests
 from apt_inst import TarFile
 import pwd, grp
@@ -9,6 +8,7 @@ from pystemd import dbusexc
 from passlib import pwd
 from plumbum.cmd import useradd, userdel, chown, chmod, systemctl, rm
 from models.basemodel import Package, Installer
+from models.config_manager import update_json_file, update_ini_file
 from models.dbInstaller import DBInstaller
 import utils.consts as consts
 
@@ -18,6 +18,7 @@ class BinaryPackage(Package):
     archive_url: str
     data_dir: str
     service_file_data: str
+    config_file_type: str
     config_file_path: str
     database: str
 
@@ -136,33 +137,11 @@ class BinaryInstaller(Installer):
  
 
     def configure_service(self):
-        
-        variables = vars()
-        variables.update(self.__dict__)
-        
+        if self.config_file_type == "json":
+            update_json_file(self.config_file_path, self.config_params)
+        if self.config_file_type == "ini":
+            update_ini_file(self.config_file_path, self.config_params)
 
-        with open(self.config_file_path, "r") as f:
-            default_config_dict = json.load(f)
-
-
-        def apply_configuration():
-            for p in self.config_params:
-                obj_names = p["config_key"].split("|")
-                key = obj_names.pop()
-
-                value = p["value"].format(**variables)
-                obj = default_config_dict
-
-                for name in obj_names:
-                    obj = obj[name]
-                obj[key] = value
-
-        def save_configuration():
-            with open(self.config_file_path, "w") as f:
-                json.dump(default_config_dict, f, indent=4)
-
-        apply_configuration()
-        save_configuration()
 
     def remove_service(self):
 
