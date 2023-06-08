@@ -10,7 +10,7 @@ from passlib import pwd
 from plumbum.cmd import useradd, userdel, chown, chmod, systemctl, rm
 from models.basemodel import Package, Installer
 from models.dbInstaller import DBInstaller
-import consts
+import utils.consts as consts
 
 
 @dataclass
@@ -38,6 +38,7 @@ class BinaryPackage(Package):
 
         self.systemd = Unit(f"{self.pkg_name}.service")
         self.systemd.load()
+
 
 
 class BinaryInstaller(Installer):

@@ -12,6 +12,9 @@ class Package():
 
 class Installer(ABC):
 
+    def __init__(self, package) -> None:
+        self.package = package
+
     def __getattr__(self, attr):
         return getattr(self.package, attr)
 

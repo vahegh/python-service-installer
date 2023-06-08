@@ -1,6 +1,6 @@
 from json import load
 from argparse import ArgumentParser
-from models.binaryInstaller import BinaryPackage, BinaryInstaller
+from models.binary_service import BinaryPackage, BinaryInstaller
 from models.packageInstaller import AptPackage, AptPackageInstaller
 
 parser = ArgumentParser()
