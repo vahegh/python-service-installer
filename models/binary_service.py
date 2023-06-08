@@ -1,4 +1,4 @@
-from os import path, mkdir
+from os import path, mkdir, remove
 import requests
 from apt_inst import TarFile
 import pwd, grp
@@ -9,7 +9,6 @@ from passlib import pwd
 from plumbum.cmd import useradd, userdel, chown, chmod, systemctl, rm
 from models.basemodel import Package, Installer
 from models.config_manager import update_json_file, update_ini_file
-from models.dbInstaller import DBInstaller
 import utils.consts as consts
 
 
@@ -71,10 +70,8 @@ class BinaryInstaller(Installer):
                 f.write(response.content)
 
         print(f"Done. Extracting archive to {self.service_dir}")
-
         TarFile(self.archive_file).extractall(self.base_dir)
-
-        # os.remove(self.archive_file)
+        remove(self.archive_file)
 
         print("Done.")
 
@@ -107,18 +104,8 @@ class BinaryInstaller(Installer):
         systemctl['enable', f'{self.pkg_name}.service']
 
 
-    def configure_deps_db(self):
-        if self.database:
-            database_service = DBInstaller(
-                self.database,
-                None,
-                self.database,
-                self.database,
-                self.db_name,
-                self.db_user,
-                self.db_pass
-            )
-            database_service.install_service()
+    def configure_deps_db(self): # TODO add database installer
+        pass
 
 
     def install_service(self):
@@ -152,17 +139,8 @@ class BinaryInstaller(Installer):
 
         systemctl['disable', f'{self.pkg_name}.service']
 
-        if self.database:
-            database_service = DBInstaller(
-                self.database,
-                None,
-                self.database,
-                self.database,
-                self.db_name,
-                self.db_user,
-                None
-            )
-            database_service.remove_service()
+        if self.database: # TODO add database remover
+            pass
 
         userdel[self.user_name]
         rm['-r', self.service_dir]
