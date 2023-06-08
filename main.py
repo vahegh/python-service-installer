@@ -1,7 +1,7 @@
 from json import load
 from argparse import ArgumentParser
 from models.binary_service import BinaryPackage, BinaryInstaller
-from models.packageInstaller import AptPackage, AptPackageInstaller
+from models.package_manager_service import AptPackage, AptPackageInstaller
 
 parser = ArgumentParser()
 parser.add_argument("-i", "--install", action="store_true", help="install service")
