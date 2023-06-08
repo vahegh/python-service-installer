@@ -1,8 +1,8 @@
-from models.packageInstaller import PackageInstaller
+from models.packageInstaller import AptPackage, AptPackageInstaller
 import subprocess
 
 
-class DBInstaller(PackageInstaller):
+class DBInstaller(AptPackageInstaller):
     def __init__(self, title: str, version: str, pkg_name: str, db_engine: str, db_name: str, db_user: str, db_pass):
         super().__init__(title, version, pkg_name)
 

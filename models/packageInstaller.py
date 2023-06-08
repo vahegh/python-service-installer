@@ -8,42 +8,15 @@ from models.basemodel import Installer, Package
 env["DEBIAN_FRONTEND"] = "noninteractive"
 cache = apt.Cache()
 
-cache.update(raise_on_error=False)
-cache.open()
-
-
 @dataclass
 class AptPackage(Package):
     source_repo: str
     gpg_url: str
-    dependencies: list
-    config_params: list
 
     def __post_init__(self):
         self.pkg = cache[self.pkg_name]
-
-        if self.source_repo and self.gpg_url:
-            print(f"Configuring apt repository for {self.title}")
-            source_list_path = f"/etc/apt/sources.list.d/{self.pkg_name}.list"  # TODO keep in config files
-            gpg_file_path = f"/etc/apt/trusted.gpg.d/{self.pkg_name}.asc"
-
-            with open(source_list_path, "w") as f:
-                f.write(self.source_repo)
-            curl["-sL", "-o", {gpg_file_path}, {self.gpg_url}]
-
-            cache.update()
-            cache.open()
-
-
-        if self.version:
-            desired_version = next((x for x in self.pkg.versions if x.version == self.version), None)
-            if desired_version:
-                print(f"Setting version '{self.version}' for {self.title}")
-                self.pkg.candidate = desired_version
-                cache.update()
-                cache.open()
-            else:
-                print(f"Version '{self.version}' not available for {self.title}, defaulting to latest.")
+        self.service = Unit(f"{self.pkg_name}.service")
+        self.service.load()
 
 
 class AptPackageInstaller(Installer):
@@ -62,16 +35,31 @@ class AptPackageInstaller(Installer):
     def __init__(self, package: AptPackage):
         self.package = package
 
-    def __getattr__(self, attr):
-        return getattr(self.package, attr)
-
     def check_installed(self):
         return self.pkg.is_installed
 
     def check_status(self):
-        service = Unit(f"{self.pkg_name}.service")
-        service.load()
-        return service.Unit.ActiveState.decode()
+        status = self.service.Unit.ActiveState
+        return status.decode()
+    
+    def configure_repo(self):
+        if self.source_repo and self.gpg_url:
+            print(f"Configuring apt repository for {self.title}")
+            source_list_path = f"/etc/apt/sources.list.d/{self.pkg_name}.list"  # TODO keep in config files
+            gpg_file_path = f"/etc/apt/trusted.gpg.d/{self.pkg_name}.asc"
+
+            with open(source_list_path, "w") as f:
+                f.write(self.source_repo)
+            curl["-sL", "-o", {gpg_file_path}, {self.gpg_url}]
+
+    def set_version(self):
+        if self.version:
+            desired_version = next((x for x in self.pkg.versions if x.version == self.version), None)
+            if desired_version:
+                print(f"Setting version '{self.version}' for {self.title}")
+                self.pkg.candidate = desired_version
+            else:
+                print(f"Version '{self.version}' not available for {self.title}, defaulting to latest.")
 
     def install_dependencies(self):
         for d in self.dependencies: #TODO add in baseclass
@@ -99,6 +87,10 @@ class AptPackageInstaller(Installer):
             print(f"Status: {self.check_status()}")
         else:
             print(f"Installing service: {self.title}")
+            self.set_version()
+            self.configure_repo()
+            cache.update(raise_on_error=False)
+            cache.open()
             self.install_dependencies()
             self.pkg.mark_install()
             cache.commit()
