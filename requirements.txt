@@ -1,5 +1,5 @@
 docker
 pydantic
-python-apt
 passlib
 pystemd
+plumbum
