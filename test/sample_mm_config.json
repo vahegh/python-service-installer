@@ -1,6 +1,6 @@
 {
     "ServiceSettings": {
-        "SiteURL": "localhost:8065",
+        "SiteURL": "c",
         "WebsocketURL": "",
         "LicenseFileLocation": "",
         "ListenAddress": ":8000",
@@ -76,7 +76,8 @@
         "ImageProxyURL": "",
         "EnableAPITeamDeletion": false,
         "ExperimentalEnableHardenedMode": false,
-        "EnableEmailInvitations": false
+        "EnableEmailInvitations": false,
+        "d": "e"
     },
     "TeamSettings": {
         "SiteName": "Mattermost",

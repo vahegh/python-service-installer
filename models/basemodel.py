@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from models.config_manager import update_json_file, update_ini_file
 
 @dataclass
 class Package():
@@ -7,6 +8,8 @@ class Package():
     pkg_name: str
     version: str
     dependencies: list
+    config_file_type: str
+    config_file_path: str
     config_params: dict
 
 
@@ -34,6 +37,8 @@ class Installer(ABC):
     def remove_service(self):
         pass
 
-    # @abstractmethod
-    # def configure_service(self) -> bool:
-    #     pass
+    def configure_service(self):
+        if self.config_file_type == "json":
+            update_json_file(self.config_file_path, self.config_params)
+        if self.config_file_type == "ini":
+            update_ini_file(self.config_file_path, self.config_params)

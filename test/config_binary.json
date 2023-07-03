@@ -1,0 +1,37 @@
+{
+    "install_type": "binary",
+    "install_settings": {
+        "title": "Mattermost",
+        "pkg_name": "mattermost",
+        "version": "7.10.2",
+        "dependencies": [
+            {
+                "install_settings": {
+
+                    "title": "MySQL",
+                    "pkg_name": "mysql-server",
+                    "version": "",
+                    "source_repo": "",
+                    "gpg_url": ""
+                }
+            }
+
+        ],
+        "config_file_type": "json",
+        "config_file_path": "config/config.json",
+
+        "config_params": {
+            "SqlSettings": {
+                "DataSource": "mysql://{db_user}:{db_pass}@localhost:5432/{db_name}?sslmode=disable&connect_timeout=10"
+            },
+            "ServiceSettings": {
+                "SiteURL": "localhost:8065"
+            }
+        },
+
+        "archive_url": "https://releases.mattermost.com/{}/mattermost-{}-linux-amd64.tar.gz",
+        "data_dir": "data",
+        "service_file_data": "[Unit]\nDescription=Mattermost\nAfter=network.target\n\n[Service]\nType=notify\nExecStart=/opt/mattermost/bin/mattermost\nTimeoutStartSec=3600\nKillMode=mixed\nRestart=always\nRestartSec=10\nWorkingDirectory=/opt/mattermost\nUser=mattermost\nGroup=mattermost\nLimitNOFILE=49152\n\n[Install]\nWantedBy=multi-user.target",
+        "database": "mysql"
+    }
+}

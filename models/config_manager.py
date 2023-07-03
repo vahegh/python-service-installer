@@ -1,7 +1,6 @@
 import json
 import configparser
 
-
 def update_ini_file(config_file_path, config_params):
     # Read the existing INI file
     config = configparser.ConfigParser()
@@ -12,10 +11,7 @@ def update_ini_file(config_file_path, config_params):
     for section, settings in config_params.items():
         if config.has_section(section):
             for key, value in settings.items():
-                if config.has_option(section, key):
-                    config.set(section, key, str(value))
-                else:
-                    print(f"Option '{key}' not found in section '{section}'")
+                config.set(section, key, str(value))
         else:
             print(f"Section '{section}' not found")
 
@@ -27,20 +23,20 @@ def update_ini_file(config_file_path, config_params):
 def update_json_file(config_file_path, config_params):
     # Read the existing JSON file
     with open(config_file_path, 'r') as f:
-        data = json.load(f)
+        config_file = json.load(f)
 
     # Update values inside the file
-    def update_values(data, config_params):
-        for k, v in config_params.items():
-            if k in data:
-                if isinstance(v, dict) and isinstance(data[k], dict):
-                    update_values(data[k], v)
+    def update_values(config_file, config_params):
+        for key, value in config_params.items():
+            if key in config_file:
+                if isinstance(value, dict) and isinstance(config_file[key], dict):
+                    update_values(config_file[key], value)
                 else:
-                    data[k] = v
+                    config_file[key] = value
             else:
-                data[k] = v
-    update_values(data, config_params)
+                config_file[key] = value
+    update_values(config_file, config_params)
 
     # Write the updated configuration back to the JSON file
     with open(config_file_path, 'w') as f:
-        json.dump(data, f, indent=4)
+        json.dump(config_file, f, indent=4)

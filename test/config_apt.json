@@ -31,11 +31,17 @@
                 }
             }
         ],
+        "config_file_type": "json",
+
+        "config_file_path": "test/sample_mm_config.json",
 
         "config_params": {
-            "SiteSettings|SiteUrl": "https://esiminch.am",
-            "SqlSettings|DataSource": "mmuser:mmpass..."
+            "SiteSettings": {
+                "SiteUrl": "https://esiminch.am"
+            },
+            "SqlSettings": {
+                "DataSource": "mmuser:mmpass..."
+            }
         }
-        
     }
 }
