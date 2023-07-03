@@ -1,14 +1,13 @@
-from os import path, mkdir, remove
+from os import path, mkdir
 import requests
 from apt_inst import TarFile
 import pwd, grp
 from dataclasses import dataclass
 from pystemd.systemd1 import Unit
 from pystemd import dbusexc
-from passlib import pwd
+from passlib import pwd as pw
 from plumbum.cmd import useradd, userdel, chown, chmod, systemctl, rm
 from models.basemodel import Package, Installer
-from models.config_manager import update_json_file, update_ini_file
 import utils.consts as consts
 
 
@@ -17,10 +16,7 @@ class BinaryPackage(Package):
     archive_url: str
     data_dir: str
     service_file_data: str
-    config_file_type: str
-    config_file_path: str
     database: str
-
 
     def __post_init__(self):
         self.service_dir = f"{consts.service_base_dir}/{self.pkg_name}"
@@ -34,23 +30,16 @@ class BinaryPackage(Package):
         if self.database:
             self.db_name = self.pkg_name
             self.db_user = self.pkg_name
-            self.db_pass = pwd.genword(entropy=None, length=12)
+            self.db_pass = pw.genword(entropy=None, length=12)
 
         self.systemd = Unit(f"{self.pkg_name}.service")
         self.systemd.load()
 
 
-
 class BinaryInstaller(Installer):
 
-    def __init__(self, package: BinaryPackage):
-        self.package = package
-            
-    def __getattr__(self, attr):
-        return getattr(self.package, attr)
-
     def check_installed(self):
-        return path.exists(self.service_dir) 
+        return path.exists(self.service_dir) and path.exists(self.service_file_path)
     
     def check_status(self):
         status = self.systemd.Unit.ActiveState
@@ -58,22 +47,20 @@ class BinaryInstaller(Installer):
 
     def install_archive(self):
         if not path.isdir(self.service_dir):
-            print(f"{self.service_dir} directory doesn't exist. Creating now.")
+            print(f"Creating {self.service_dir}...")
             mkdir(self.service_dir)
 
         if not path.isfile(self.archive_file):
             print("Downloading archive...")
             response = requests.get(self.archive_url)
 
-            print(f"Done. Writing to {self.archive_file}")
+            print(f"Writing to {self.archive_file}...")
             with open (self.archive_file, "wb") as f:
                 f.write(response.content)
 
-        print(f"Done. Extracting archive to {self.service_dir}")
-        TarFile(self.archive_file).extractall(self.base_dir)
-        remove(self.archive_file)
-
-        print("Done.")
+        print(f"Extracting archive to {self.service_dir}...")
+        TarFile(self.archive_file).extractall(consts.service_base_dir)
+        # remove(self.archive_file)
 
 
     def create_user(self):
@@ -82,8 +69,8 @@ class BinaryInstaller(Installer):
             grp.getgrnam(self.user_name)
 
         except Exception:
-            print(f"Creating {self.user_name} user and group.")
-            useradd['--system', '--user-group', self.user_name]
+            print(f"Creating {self.user_name} user and group...")
+            useradd('--system', '--user-group', self.user_name)
 
         else:
             print(f"{self.user_name} user and group exist.")
@@ -91,58 +78,42 @@ class BinaryInstaller(Installer):
 
     def configure_dirs(self):
         if not path.isdir(self.data_dir):
-            print(f"{self.data_dir} directory doesn't exist. Creating now.")
+            print(f"Creating {self.data_dir}...")
             mkdir(self.data_dir)
 
-        chown['-R', f'{self.user_name}:{self.user_name}', self.service_dir]
-        chmod['-R', 'g+w', self.service_dir]
+        chown('-R', f'{self.user_name}:{self.user_name}', self.service_dir)
+        chmod('-R', 'g+w', self.service_dir)
 
 
     def configure_systemd(self):
+        print("Configuring systemd service...")
         with open (self.service_file_path, "w") as f:
             f.write(self.service_file_data)
-        systemctl['enable', f'{self.pkg_name}.service']
-
-
-    def configure_deps_db(self): # TODO add database installer
-        pass
+        systemctl('enable', f'{self.pkg_name}.service')
 
 
     def install_service(self):
         if self.check_installed():
-            print(f"{self.pkg_name} is already installed.")
+            print(f"{self.title} is already installed.")
         
         else:
-            self.configure_deps_db()
             self.install_archive()
             self.create_user()
             self.configure_dirs()
             self.configure_systemd()
             self.configure_service()
-
             self.systemd.Unit.Start(b'replace')
- 
-
-    def configure_service(self):
-        if self.config_file_type == "json":
-            update_json_file(self.config_file_path, self.config_params)
-        if self.config_file_type == "ini":
-            update_ini_file(self.config_file_path, self.config_params)
 
 
     def remove_service(self):
-
         try:
             self.systemd.Unit.Stop(b'replace')
         except dbusexc.DBusNoSuchUnitError:
-            pass
+            print(f"{self.title} unit doesn't exist, so not disabling it.")
+        else:
+            systemctl('disable', f'{self.pkg_name}.service', retcode = (0, 1))
 
-        systemctl['disable', f'{self.pkg_name}.service']
-
-        if self.database: # TODO add database remover
-            pass
-
-        userdel[self.user_name]
-        rm['-r', self.service_dir]
-        rm['-r', self.service_file_path]
+        userdel(self.user_name, retcode = (0, 6))
+        rm('-r', self.service_dir, retcode = (0, 1))
+        rm('-r', self.service_file_path, retcode = (0, 1))
         print(f"Removed {self.title}.")
