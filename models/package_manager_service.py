@@ -32,9 +32,6 @@ class AptPackageInstaller(Installer):
     5. Installing the package itself
     6. Removing the package"""
 
-    def __init__(self, package: AptPackage):
-        self.package = package
-
     def check_installed(self):
         return self.pkg.is_installed
 
@@ -45,7 +42,7 @@ class AptPackageInstaller(Installer):
     def configure_repo(self):
         if self.source_repo and self.gpg_url:
             print(f"Configuring apt repository for {self.title}")
-            source_list_path = f"/etc/apt/sources.list.d/{self.pkg_name}.list"  # TODO keep in config files
+            source_list_path = f"/etc/apt/sources.list.d/{self.pkg_name}.list"
             gpg_file_path = f"/etc/apt/trusted.gpg.d/{self.pkg_name}.asc"
 
             with open(source_list_path, "w") as f:
@@ -62,7 +59,7 @@ class AptPackageInstaller(Installer):
                 print(f"Version '{self.version}' not available for {self.title}, defaulting to latest.")
 
     def install_dependencies(self):
-        for d in self.dependencies: #TODO add in baseclass
+        for d in self.dependencies:
             dependency_config = d["install_settings"]
             dependency_pkg = AptPackage(**dependency_config)
             if not dependency_pkg.pkg.is_installed:
@@ -94,6 +91,7 @@ class AptPackageInstaller(Installer):
             self.install_dependencies()
             self.pkg.mark_install()
             cache.commit()
+            self.configure_service()
 
     def remove_service(self):
         if not self.check_installed():
