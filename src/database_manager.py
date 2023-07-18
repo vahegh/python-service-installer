@@ -10,10 +10,10 @@ def run_db_commands(db_command, queries, variables):
 def configure_database(db_type, db_user, db_pass, db_name):
     variables = vars()
     if db_type in ["mysql", "mariadb", "maria"]:
-        run_db_commands(mysql_db_command, mysql_conf_commands, variables)
+        run_db_commands(MYSQL_DB_COMMAND, MYSQL_CONF_COMMANDS, variables)
 
     elif db_type in ["postgresql", "postgres", "psql"]:
-        run_db_commands(postgresql_db_command, postgresql_conf_commands, variables)
+        run_db_commands(POSTGRESQL_DB_COMMAND, POSTGRESQL_CONF_COMMANDS, variables)
     
     else:
         print("Unsupported database.")
@@ -27,10 +27,10 @@ def configure_database(db_type, db_user, db_pass, db_name):
 def remove_database(db_type, db_user, db_name):
     variables = vars()
     if db_type in ["mysql", "mariadb", "maria"]:
-        run_db_commands(mysql_db_command, mysql_remove_commands, variables)
+        run_db_commands(MYSQL_DB_COMMAND, MYSQL_REMOVE_COMMANDS, variables)
 
     elif db_type in ["postgresql", "postgres", "psql"]:
-        run_db_commands(postgresql_db_command, postgresql_remove_commands, variables)
+        run_db_commands(POSTGRESQL_DB_COMMAND, POSTGRESQL_REMOVE_COMMANDS, variables)
     
     else:
         print("Unsupported database.")

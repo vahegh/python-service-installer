@@ -9,11 +9,9 @@
                 "title": "PostgreSQL",
                 "pkg_name": "postgresql-14"
             }
-
         ],
         "conf_type": "json",
         "conf_file_path": "config/config.json",
-
         "conf_params": {
             "SqlSettings": {
                 "DriverName": "{database}",
@@ -23,7 +21,11 @@
                 "SiteURL": "localhost:8065"
             }
         },
-
+        "nginx_params": {
+            "DOMAIN": "mattermost.vahe.fun",
+            "EMAIL": "vahe.55101@gmail.com",
+            "UPSTREAM_ADDRESS": "localhost:8065"
+        },
         "archive_url": "https://releases.mattermost.com/{version}/mattermost-{version}-linux-amd64.tar.gz",
         "data_dir": "data",
         "service_file_data": "[Unit]\nDescription=Mattermost\nAfter=network.target\n\n[Service]\nType=notify\nExecStart=/opt/mattermost/bin/mattermost\nTimeoutStartSec=3600\nKillMode=mixed\nRestart=always\nRestartSec=10\nWorkingDirectory=/opt/mattermost\nUser=mattermost\nGroup=mattermost\nLimitNOFILE=49152\n\n[Install]\nWantedBy=multi-user.target",

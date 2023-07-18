@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from passlib import pwd as pw
 from pystemd.systemd1 import Unit
 from ..base.base_package import Package
-from ...utils.consts import service_base_dir, systemd_base_dir
+from ...utils.consts import SERVICE_BASE_DIR, SYSTEMD_BASE_DIR
 
 @dataclass
 class BinaryPackage(Package):
@@ -12,9 +12,10 @@ class BinaryPackage(Package):
     database: str = None
 
     def __post_init__(self):
-        self.service_dir = f"{service_base_dir}/{self.pkg_name}"
+        super().__post__init__()
+        self.service_dir = f"{SERVICE_BASE_DIR}/{self.pkg_name}"
         self.data_dir = f"{self.service_dir}/{self.data_dir}"
-        self.systemd_file_path = f"{systemd_base_dir}/{self.pkg_name}.service"
+        self.systemd_file_path = f"{SYSTEMD_BASE_DIR}/{self.pkg_name}.service"
         self.conf_file_path = f"{self.service_dir}/{self.conf_file_path}"
         self.archive_file = f"{self.pkg_name}.tar.gz"
         self.archive_url = self.archive_url.format(**vars(self))

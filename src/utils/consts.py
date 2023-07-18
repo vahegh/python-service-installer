@@ -1,34 +1,54 @@
-from plumbum.cmd import mysql, sudo
+from plumbum.cmd import sudo
 
-service_base_dir = "/opt"
-systemd_base_dir = "/etc/systemd/system"
+SERVICE_BASE_DIR = "/opt"
+SYSTEMD_BASE_DIR = "/etc/systemd/system"
+NGINX_BASE_DIR = "/etc/nginx/conf.d"
+NGINX_DEFAULT_CONF_PATH = "src/utils/nginx_default_conf"
+CERT_BASE_DIR = "/etc/letsencrypt"
+
+MYSQL_DB_COMMAND = sudo["mysql", "-e"]
+POSTGRESQL_DB_COMMAND = sudo["-u", "postgres", "psql", "-c"]
 
 
-mysql_db_command = mysql["-e"]
-postgresql_db_command = sudo["-u", "postgres", "psql", "-c"]
-
-
-mysql_conf_commands = [
+MYSQL_CONF_COMMANDS = [
     "CREATE USER '{db_user}'@'localhost' IDENTIFIED BY '{db_pass}';",
     "CREATE DATABASE {db_name};",
     "GRANT ALL PRIVILEGES ON {db_name}.* TO '{db_user}'@'localhost';",
     "FLUSH PRIVILEGES;"
 ]
 
-mysql_remove_commands = [
+MYSQL_REMOVE_COMMANDS = [
     "DROP DATABASE IF EXISTS {db_name};",
     "DROP USER IF EXISTS '{db_user}'@'localhost';"
 ]
 
-postgresql_conf_commands = [
+POSTGRESQL_CONF_COMMANDS = [
     "CREATE USER {db_user} WITH PASSWORD '{db_pass}';",
     "CREATE DATABASE {db_name} OWNER {db_user};",
     "GRANT ALL PRIVILEGES ON DATABASE {db_name} TO {db_user};",
     "GRANT USAGE, CREATE ON SCHEMA PUBLIC TO {db_user}"
 ]
 
-postgresql_remove_commands = [
+POSTGRESQL_REMOVE_COMMANDS = [
     "DROP DATABASE IF EXISTS {db_name};",
     "REVOKE USAGE, CREATE ON SCHEMA PUBLIC FROM {db_user}",
     "DROP USER IF EXISTS {db_user};"
+]
+
+
+NGINX_PARAMS_APT = [
+    {
+        "title": "Nginx",
+        "pkg_name": "nginx"
+    },
+
+    {
+        "title": "Certbot",
+        "pkg_name": "certbot"
+    },
+
+    {
+        "title": "Python3-Certbot-Nginx",
+        "pkg_name": "python3-certbot-nginx"
+    }
 ]

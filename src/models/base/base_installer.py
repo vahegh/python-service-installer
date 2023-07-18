@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from ...config_manager import update_json, update_ini
 from ..apt.apt_package import AptPackage
 from ..apt.apt_package import cache
+from ...nginx_manager import configure_webserver, configure_ssl, remove_webserver_conf
 
 class Installer(ABC):
 
@@ -62,3 +63,11 @@ class Installer(ABC):
             update_json(self.conf_file_path, self.conf_params)
         if self.conf_type == "ini":
             update_ini(self.conf_file_path, self.conf_params)
+
+    def configure_webserver(self):
+        if self.nginx_params:
+            configure_webserver(self.nginx_file_path, self.nginx_params)
+            configure_ssl(self.domain, self.email)
+
+    def remove_webserver(self):
+        remove_webserver_conf(self.nginx_file_path)

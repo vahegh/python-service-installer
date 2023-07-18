@@ -5,7 +5,7 @@ import pwd, grp
 from pystemd import dbusexc
 from plumbum.cmd import useradd, userdel, chown, chmod, systemctl, rm
 from ..base.base_installer import Installer
-from ...utils.consts import service_base_dir
+from ...utils.consts import SERVICE_BASE_DIR
 from ...database_manager import configure_database, remove_database
 
 
@@ -32,7 +32,7 @@ class BinaryInstaller(Installer):
                 f.write(response.content)
 
         print(f"Extracting archive to {self.service_dir}...")
-        TarFile(self.archive_file).extractall(service_base_dir)
+        TarFile(self.archive_file).extractall(SERVICE_BASE_DIR)
         # remove(self.archive_file)
 
     def create_user(self):
@@ -70,11 +70,15 @@ class BinaryInstaller(Installer):
             self.create_user()
             self.configure_dirs()
             self.install_dependencies()
-            configure_database(self.database, self.db_user, self.db_pass, self.db_name)
+            if self.database:
+                configure_database(self.database, self.db_user, self.db_pass, self.db_name)
+            if self.nginx_params:
+                self.configure_webserver()
             self.configure_systemd()
             self.configure_service()
             self.systemd.Unit.Start(b'replace')
             print(f"Installed {self.title}.")
+            print("Status:", self.check_status())
 
     def remove_service(self):
         if not self.check_installed():
@@ -88,8 +92,10 @@ class BinaryInstaller(Installer):
             else:
                 systemctl('disable', f'{self.pkg_name}.service', retcode = (0, 1))
 
-            remove_database(self.database, self.db_user, self.db_name)
+            if self.database:
+                remove_database(self.database, self.db_user, self.db_name)
             self.remove_dependencies()
+            self.remove_webserver()
             userdel(self.user_name, retcode = (0, 6))
             rm('-r', self.service_dir, retcode = (0, 1))
             rm(self.systemd_file_path, retcode = (0, 1))
