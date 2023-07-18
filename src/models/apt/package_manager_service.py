@@ -1,23 +1,9 @@
 from os import environ as env
-from dataclasses import dataclass
-import apt
-from pystemd.systemd1 import Unit
 from plumbum.cmd import curl
-from models.basemodel import Installer, Package
+from ..base.base_installer import Installer
+from ..apt.apt_package import cache
 
 env["DEBIAN_FRONTEND"] = "noninteractive"
-cache = apt.Cache()
-
-@dataclass
-class AptPackage(Package):
-    source_repo: str
-    gpg_url: str
-
-    def __post_init__(self):
-        self.pkg = cache[self.pkg_name]
-        self.service = Unit(f"{self.pkg_name}.service")
-        self.service.load()
-
 
 class AptPackageInstaller(Installer):
     """An installer object for an apt package.
@@ -58,26 +44,6 @@ class AptPackageInstaller(Installer):
             else:
                 print(f"Version '{self.version}' not available for {self.title}, defaulting to latest.")
 
-    def install_dependencies(self):
-        for d in self.dependencies:
-            dependency_config = d["install_settings"]
-            dependency_pkg = AptPackage(**dependency_config)
-            if not dependency_pkg.pkg.is_installed:
-                print(f"Installing dependency: {dependency_pkg.title}")
-                dependency_pkg.pkg.mark_install()
-            else:
-                print(f"Dependency '{dependency_pkg.title}' already satisfied.")
-
-    def remove_dependencies(self):
-        for d in self.dependencies:
-            dependency_config = d["install_settings"]
-            dependency_pkg = AptPackage(**dependency_config)
-            if dependency_pkg.pkg.is_installed:
-                print(f"Removing dependency: {dependency_pkg.title}")
-                dependency_pkg.pkg.mark_delete()
-            else:
-                print(f"Dependency '{dependency_pkg.title}' not installed.")
-
     def install_service(self):
         if self.check_installed():
             print(f"{self.title} already installed")
@@ -86,11 +52,14 @@ class AptPackageInstaller(Installer):
             print(f"Installing service: {self.title}")
             self.set_version()
             self.configure_repo()
-            cache.update(raise_on_error=False)
-            cache.open()
-            self.install_dependencies()
+            if self.dependencies:
+                self.install_dependencies()
+            else:
+                cache.update(raise_on_error=False)
+                cache.open()
             self.pkg.mark_install()
             cache.commit()
+            cache.close()
             self.configure_service()
 
     def remove_service(self):

@@ -1,7 +1,9 @@
 from json import load
 from argparse import ArgumentParser
-from models.binary_service import BinaryPackage, BinaryInstaller
-from models.package_manager_service import AptPackage, AptPackageInstaller
+from src.models.apt.apt_package import AptPackage
+from src.models.binary.binary_package import BinaryPackage
+from src.models.binary.binary_service import BinaryInstaller
+from src.models.apt.package_manager_service import AptPackageInstaller
 
 parser = ArgumentParser()
 parser.add_argument("-i", "--install", action="store_true", help="install service")
@@ -11,7 +13,7 @@ parser.add_argument("-ci", "--check-installed", action="store_true",help="check 
 parser.add_argument("-f", "--file", help="specify configuration file")
 
 args = parser.parse_args()
-configfile = args.file if args.file else "config.json"
+configfile = args.file if args.file else "test/config_mattermost.json"
 
 with open(configfile, "r") as f:
     config = load(f)
@@ -40,6 +42,9 @@ def main():
     
     elif args.check_installed:
         print(f"Installed: {installer.check_installed()}")
+
+    else:
+        installer.install_service()
 
 
 if __name__ == "__main__":
