@@ -1,7 +1,7 @@
 from os import environ as env
 from plumbum.cmd import curl
 from ..base.base_installer import Installer
-from ..apt.apt_package import cache
+from .apt_package import cache
 
 env["DEBIAN_FRONTEND"] = "noninteractive"
 
