@@ -13,7 +13,7 @@ parser.add_argument("-ci", "--check-installed", action="store_true",help="check 
 parser.add_argument("-f", "--file", help="specify configuration file")
 
 args = parser.parse_args()
-configfile = args.file if args.file else "test/config_mattermost.json"
+configfile = args.file if args.file else "test/samples/mattermost.json"
 
 with open(configfile, "r") as f:
     config = load(f)

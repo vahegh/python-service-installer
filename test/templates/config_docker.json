@@ -1,0 +1,13 @@
+[
+    {
+        "image": "",
+        "name": "",
+        "network": "",
+        "volumes": "",
+        "environment": {
+            "A": "value1",
+            "B": "value2",
+            "C": "value3"
+        }
+    }
+]

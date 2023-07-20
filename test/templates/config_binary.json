@@ -1,0 +1,37 @@
+{
+    "install_type": "binary",
+    "install_settings": {
+        "title": "",
+        "pkg_name": "",
+        "version": "",
+        "dependencies": [
+            {
+                "title": "",
+                "pkg_name": "",
+                "source_repo": "",
+                "gpg_url": ""
+            }
+        ],
+        "conf_type": "",
+        "conf_file_path": "",
+        "conf_params": {
+            "A": {
+                "B": "value1",
+                "C": "value2"
+            },
+            "D": {
+                "E": "value3"
+            }
+        },
+        "nginx_params": {
+            "DOMAIN": "",
+            "EMAIL": "",
+            "UPSTREAM_ADDRESS": ""
+        },
+        "data_dir": "",
+        "database": "",
+
+        "archive_url": "",
+        "service_file_data": ""
+    }
+}
