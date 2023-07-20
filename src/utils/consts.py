@@ -9,7 +9,6 @@ CERT_BASE_DIR = "/etc/letsencrypt"
 MYSQL_DB_COMMAND = sudo["mysql", "-e"]
 POSTGRESQL_DB_COMMAND = sudo["-u", "postgres", "psql", "-c"]
 
-
 MYSQL_CONF_COMMANDS = [
     "CREATE USER '{db_user}'@'localhost' IDENTIFIED BY '{db_pass}';",
     "CREATE DATABASE {db_name};",
@@ -52,3 +51,13 @@ NGINX_PARAMS_APT = [
         "pkg_name": "python3-certbot-nginx"
     }
 ]
+
+MYSQL_PARAMS_APT = {
+    "title": "MySQL",
+    "pkg_name": "mysql-server"
+}
+
+POSTGRESQL_PARAMS_APT = {
+    "title": "PostgreSQL",
+    "pkg_name": "postgresql"
+}

@@ -3,6 +3,7 @@ from ...config_manager import update_json, update_ini
 from ..apt.apt_package import AptPackage
 from ..apt.apt_package import cache
 from ...nginx_manager import configure_webserver, configure_ssl, remove_webserver_conf
+from ...utils.consts import MYSQL_PARAMS_APT, POSTGRESQL_PARAMS_APT
 
 class Installer(ABC):
 
@@ -53,6 +54,16 @@ class Installer(ABC):
     @abstractmethod
     def remove_service(self):
         pass
+
+    def add_db_dependency(self):
+        if self.database in ["mysql", "mariadb", "maria"]:
+            self.dependencies.append(MYSQL_PARAMS_APT)
+
+        elif self.database in ["postgresql", "postgres", "psql"]:
+            self.dependencies.append(POSTGRESQL_PARAMS_APT)
+        
+        else:
+            print("Unsupported database.")
 
     def configure_service(self):
         for section in self.conf_params:

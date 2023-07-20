@@ -69,6 +69,7 @@ class BinaryInstaller(Installer):
             self.install_archive()
             self.create_user()
             self.configure_dirs()
+            self.add_db_dependency()
             self.install_dependencies()
             if self.database:
                 configure_database(self.database, self.db_user, self.db_pass, self.db_name)
