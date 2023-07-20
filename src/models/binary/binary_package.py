@@ -8,8 +8,6 @@ from ...utils.consts import SERVICE_BASE_DIR, SYSTEMD_BASE_DIR
 class BinaryPackage(Package):
     archive_url: str = None
     service_file_data: str = None
-    data_dir: str = None
-    database: str = None
 
     def __post_init__(self):
         super().__post__init__()

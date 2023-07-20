@@ -11,6 +11,9 @@ class Package():
     conf_file_path: str = None
     conf_params: dict = None
     nginx_params: dict = None
+    data_dir: str = None
+    database: str = None
+
 
     def __post__init__(self):
         if self.nginx_params:
