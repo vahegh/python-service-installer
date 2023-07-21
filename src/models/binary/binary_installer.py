@@ -48,9 +48,12 @@ class BinaryInstaller(Installer):
             print(f"{self.user_name} user and group exist.")
 
     def configure_dirs(self):
-        if not path.isdir(self.data_dir):
-            print(f"Creating {self.data_dir}...")
-            mkdir(self.data_dir)
+        print("Configuring directories...")
+        for dir in self.data_dir:
+            data_dir = f"{self.service_dir}/{dir}"
+            if not path.isdir(data_dir):
+                print(f"Creating {data_dir}...")
+                mkdir(data_dir)
 
         chown('-R', f'{self.user_name}:{self.user_name}', self.service_dir)
         chmod('-R', 'g+w', self.service_dir)

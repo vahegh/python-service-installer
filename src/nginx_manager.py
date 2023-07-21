@@ -1,6 +1,6 @@
 from .utils.consts import NGINX_DEFAULT_CONF_PATH
 from certbot.main import main as cert
-from plumbum.cmd import rm
+from plumbum.cmd import rm, systemctl
 
 
 def configure_webserver(file_path, params):
@@ -12,6 +12,7 @@ def configure_webserver(file_path, params):
 
     with open(file_path, 'w') as f:
         f.write(new_conf)
+    systemctl('reload', 'nginx')
 
 
 def configure_ssl(domain, email):
@@ -22,3 +23,4 @@ def configure_ssl(domain, email):
 def remove_webserver_conf(nginx_file_path):
     print("Removing Nginx files...")
     rm(nginx_file_path, retcode = (0, 1))
+    systemctl('reload', 'nginx')

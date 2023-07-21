@@ -12,7 +12,6 @@ class BinaryPackage(Package):
     def __post_init__(self):
         super().__post__init__()
         self.service_dir = f"{SERVICE_BASE_DIR}/{self.pkg_name}"
-        self.data_dir = f"{self.service_dir}/{self.data_dir}"
         self.systemd_file_path = f"{SYSTEMD_BASE_DIR}/{self.pkg_name}.service"
         self.conf_file_path = f"{self.service_dir}/{self.conf_file_path}"
         self.archive_file = f"{self.pkg_name}.tar.gz"

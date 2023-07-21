@@ -23,7 +23,7 @@
         },
         "database": "postgres",
         "archive_url": "https://releases.mattermost.com/{version}/mattermost-{version}-linux-amd64.tar.gz",
-        "data_dir": "data",
+        "data_dir": ["data", "valodik", "gexamik"],
         "service_file_data": "[Unit]\nDescription=Mattermost\nAfter=network.target\n\n[Service]\nType=notify\nExecStart=/opt/mattermost/bin/mattermost\nTimeoutStartSec=3600\nKillMode=mixed\nRestart=always\nRestartSec=10\nWorkingDirectory=/opt/mattermost\nUser=mattermost\nGroup=mattermost\nLimitNOFILE=49152\n\n[Install]\nWantedBy=multi-user.target"
     }
 }

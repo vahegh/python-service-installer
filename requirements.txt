@@ -3,3 +3,5 @@ pydantic
 passlib
 pystemd
 plumbum
+certbot
+certbot-nginx

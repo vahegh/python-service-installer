@@ -41,7 +41,7 @@ class Installer(ABC):
             dependency_pkg = AptPackage(**dep)
             if dependency_pkg.pkg.is_installed:
                 print(f"Removing dependency: {dependency_pkg.title}")
-                dependency_pkg.pkg.mark_delete()
+                dependency_pkg.pkg.mark_delete(purge=True)
             else:
                 print(f"Dependency '{dependency_pkg.title}' not installed.")
         cache.commit()

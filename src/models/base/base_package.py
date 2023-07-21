@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from ...utils.consts import NGINX_BASE_DIR, NGINX_PARAMS_APT, CERT_BASE_DIR
+from ...utils.consts import NGINX_BASE_DIR, NGINX_PARAMS_APT
 
 @dataclass
 class Package():
@@ -11,7 +11,7 @@ class Package():
     conf_file_path: str = None
     conf_params: dict = None
     nginx_params: dict = None
-    data_dir: str = None
+    data_dir: list = None
     database: str = None
 
 
@@ -20,4 +20,3 @@ class Package():
             self.domain = self.nginx_params["DOMAIN"]
             self.email = self.nginx_params["EMAIL"]
             self.nginx_file_path = f"{NGINX_BASE_DIR}/{self.pkg_name}.conf"
-            self.dependencies.extend(NGINX_PARAMS_APT)
