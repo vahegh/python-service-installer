@@ -13,6 +13,7 @@ class Package():
     nginx_params: dict = None
     data_dir: list = None
     database: str = None
+    force_install: bool = None
 
 
     def __post__init__(self):
