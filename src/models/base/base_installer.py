@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from ...config_manager import update_json, update_ini
-from ..apt.apt_package import AptPackage
-from ..apt.apt_package import cache
-from ...nginx_manager import configure_webserver, configure_ssl, remove_webserver_conf
+from ..apt_models.apt_package import AptPackage
+from ..apt_models.apt_package import cache
+from ...nginx_manager import configure_nginx, configure_ssl, remove_webserver_conf
 from ...utils.consts import MYSQL_PARAMS_APT, POSTGRESQL_PARAMS_APT
 
 class Installer(ABC):
@@ -17,9 +17,9 @@ class Installer(ABC):
     def check_installed(self) -> bool:
         pass
 
-    @abstractmethod
-    def check_status(self):
-        pass
+    def check_version(self):
+        installed_version = self.pkg.installed()
+        print(installed_version)
 
     def install_dependencies(self):
         cache.update(raise_on_error=False)
@@ -76,9 +76,9 @@ class Installer(ABC):
             update_ini(self.conf_file_path, self.conf_params)
 
     def configure_webserver(self):
-        if self.nginx_params:
-            configure_webserver(self.nginx_file_path, self.nginx_params)
-            configure_ssl(self.domain, self.email)
+        if self.domain:
+            configure_nginx(self.nginx_file_path, self.domain, self.upstream_address)
+            configure_ssl(self.domain, self.ssl_email)
 
     def remove_webserver(self):
         remove_webserver_conf(self.nginx_file_path)

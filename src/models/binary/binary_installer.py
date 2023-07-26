@@ -12,11 +12,7 @@ from ...database_manager import configure_database, remove_database
 class BinaryInstaller(Installer):
 
     def check_installed(self):
-        return path.exists(self.service_dir) and path.exists(self.systemd_file_path)
-    
-    def check_status(self):
-        status = self.systemd.Unit.ActiveState
-        return status.decode()
+        return path.exists(self.service_dir)
 
     def install_archive(self):
         if not path.isdir(self.service_dir):
@@ -76,13 +72,13 @@ class BinaryInstaller(Installer):
             self.install_dependencies()
             if self.database:
                 configure_database(self.database, self.db_user, self.db_pass, self.db_name)
-            if self.nginx_params:
+            if self.domain:
                 self.configure_webserver()
             self.configure_systemd()
             self.configure_service()
             self.systemd.Unit.Start(b'replace')
             print(f"Installed {self.title}.")
-            print("Status:", self.check_status())
+            print("Status:", self.status)
 
     def remove_service(self):
         if not self.check_installed():

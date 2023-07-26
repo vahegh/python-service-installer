@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from passlib import pwd as pw
-from pystemd.systemd1 import Unit
 from ..base.base_package import Package
 from ...utils.consts import SERVICE_BASE_DIR, SYSTEMD_BASE_DIR
 
@@ -23,6 +22,3 @@ class BinaryPackage(Package):
             self.db_user = self.pkg_name
             self.db_pass = pw.genword(entropy=None, length=12)
             self.db_port = "5432"
-
-        self.systemd = Unit(f"{self.pkg_name}.service")
-        self.systemd.load()
