@@ -16,11 +16,9 @@
                 "SiteURL": "localhost:8065"
             }
         },
-        "nginx_params": {
-            "DOMAIN": "mattermost.vahe.fun",
-            "EMAIL": "vahe.55101@gmail.com",
-            "UPSTREAM_ADDRESS": "localhost:8065"
-        },
+        "domain": "mattermost.vahe.fun",
+        "ssl_email": "vahe.55101@gmail.com",
+        "upstream_address": "localhost:8065",
         "database": "postgres",
         "archive_url": "https://releases.mattermost.com/{version}/mattermost-{version}-linux-amd64.tar.gz",
         "data_dir": ["data", "valodik", "gexamik"],
