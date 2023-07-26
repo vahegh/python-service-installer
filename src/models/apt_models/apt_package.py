@@ -13,5 +13,3 @@ class AptPackage(Package):
     def __post_init__(self):
         super().__post__init__()
         self.pkg = cache[self.pkg_name]
-        self.service = Unit(f"{self.pkg_name}.service")
-        self.service.load()

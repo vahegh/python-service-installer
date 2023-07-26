@@ -1,14 +1,14 @@
 from json import load
 from argparse import ArgumentParser
-from src.models.apt.apt_package import AptPackage
+from src.models.apt_models.apt_package import AptPackage
 from src.models.binary.binary_package import BinaryPackage
 from src.models.binary.binary_installer import BinaryInstaller
-from src.models.apt.apt_installer import AptPackageInstaller
+from src.models.apt_models.apt_installer import AptPackageInstaller
 
 parser = ArgumentParser()
 parser.add_argument("-i", "--install", action="store_true", help="install service")
 parser.add_argument("-r", "--remove", action="store_true", help="remove service")
-parser.add_argument("-cs", "--check-status", action="store_true", help="check service status")
+parser.add_argument("-s", "--status", action="store_true", help="check service status")
 parser.add_argument("-ci", "--check-installed", action="store_true",help="check whether service is installed")
 parser.add_argument("-f", "--file", help="specify configuration file")
 
@@ -41,8 +41,8 @@ def main():
     elif args.remove:
         installer.remove_service()
     
-    elif args.check_status:
-        print(f"Status: {installer.check_status()}")
+    elif args.status:
+        print(f"Status: {installer.status}")
     
     elif args.check_installed:
         print(f"Installed: {installer.check_installed()}")

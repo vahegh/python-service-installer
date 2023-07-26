@@ -11,19 +11,18 @@ class AptPackageInstaller(Installer):
     Accepts an AptPackage() object.
 
     Defines methods for:
-    1. Checking whether the package is installed
-    2. Checking its status using systemd
-    3. Installing the dependencies for the package
-    4. Removing the dependencies for the package
-    5. Installing the package itself
-    6. Removing the package"""
+      Checking whether the package is installed
+      Checking its status using systemd
+      Configuring repository
+      Checking package version
+      Setting package version
+      Installing the dependencies for the package
+      Removing the dependencies for the package
+      Installing the package itself
+      Removing the package"""
 
     def check_installed(self):
         return self.pkg.is_installed
-
-    def check_status(self):
-        status = self.service.Unit.ActiveState
-        return status.decode()
     
     def configure_repo(self):
         if self.source_repo and self.gpg_url:
@@ -36,21 +35,21 @@ class AptPackageInstaller(Installer):
             curl["-sL", "-o", {gpg_file_path}, {self.gpg_url}]
 
     def set_version(self):
-        if self.version:
-            desired_version = next((x for x in self.pkg.versions if x.version == self.version), None)
-            if desired_version:
-                print(f"Setting version '{self.version}' for {self.title}")
-                self.pkg.candidate = desired_version
-            else:
-                print(f"Version '{self.version}' not available for {self.title}, defaulting to latest.")
+        desired_version = next((x for x in self.pkg.versions if x.version == self.version), None)
+        if desired_version:
+            print(f"Setting version '{self.version}' for {self.title}")
+            self.pkg.candidate = desired_version
+        else:
+            print(f"Version '{self.version}' not available for {self.title}, defaulting to latest.")
 
     def install_service(self):
         if self.check_installed():
             print(f"{self.title} already installed")
-            print(f"Status: {self.check_status()}")
+            print(f"Status: {self.status()}")
         else:
             print(f"Installing service: {self.title}")
-            self.set_version()
+            if self.version:
+                self.set_version()
             self.configure_repo()
             if self.dependencies:
                 self.install_dependencies()
