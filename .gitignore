@@ -3,3 +3,4 @@ idea/
 .vscode
 .venv
 *.tar.gz
+*app_env
