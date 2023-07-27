@@ -1,7 +1,7 @@
 from os import path, mkdir
 import tarfile
 import requests
-import pwd, grp
+import pwd
 from pystemd import dbusexc
 from plumbum.cmd import useradd, userdel, chown, chmod, systemctl, rm, mv
 from ..base.base_installer import Installer
@@ -10,15 +10,14 @@ from ...helpers.database_manager import configure_db, remove_db
 
 class BinaryInstaller(Installer):
 
+    def download_archive(self):
+        print("Downloading archive...")
+        response = requests.get(self.archive_url)
+        print(f"Writing to {self.archive_file}...")
+        with open (self.archive_file, "wb") as f:
+            f.write(response.content)
+
     def install_archive(self):
-        if not path.isfile(self.archive_file):
-            print("Downloading archive...")
-            response = requests.get(self.archive_url)
-
-            print(f"Writing to {self.archive_file}...")
-            with open (self.archive_file, "wb") as f:
-                f.write(response.content)
-
         print(f"Extracting archive to {self.service_dir}...")
         tar_file = tarfile.open(self.archive_file)
         dir_name = tar_file.getmembers()[0].name
@@ -33,14 +32,11 @@ class BinaryInstaller(Installer):
     def create_user(self):
         try:
             pwd.getpwnam(self.user_name)
-            grp.getgrnam(self.user_name)
-
         except Exception:
             print(f"Creating {self.user_name} user and group...")
             useradd('--system', '--user-group', self.user_name)
-
         else:
-            print(f"{self.user_name} user and group exist.")
+            print(f"{self.user_name} user and group exist. Skipping...")
 
     def configure_data_dirs(self):
         print("Configuring directories...")
@@ -64,19 +60,23 @@ class BinaryInstaller(Installer):
             print(f"{self.title} is already installed.")
 
         else:
+            if not path.isfile(self.archive_file):
+                self.download_archive()
             self.install_archive()
             self.create_user()
             if self.data_dir:
                 self.configure_data_dirs()
             if self.database:
                 self.add_db_dependency()
-            self.install_dependencies()
+            if self.dependencies:
+                self.install_dependencies()
             if self.database:
                 configure_db(self.database, self.db_user, self.db_pass, self.db_name)
             if self.domain:
                 self.configure_webserver()
             self.configure_systemd()
-            self.configure_service()
+            if self.conf_params:
+                self.configure_service()
             self.systemd.Unit.Start(b'replace')
             print(f"Installed {self.title}.")
             print("Status:", self.status)
