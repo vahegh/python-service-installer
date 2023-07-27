@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from ...config_manager import update_json, update_ini
+from ...config_manager import update_json, update_ini, update_yaml
 from ..apt_models.apt_package import AptPackage
 from ..apt_models.apt_package import cache
 from ...nginx_manager import configure_nginx, configure_ssl, remove_webserver_conf
@@ -67,8 +67,10 @@ class Installer(ABC):
                     self.conf_params[section][key] = self.conf_params[section][key].format(**vars(self.package))
             if self.conf_type == "json":
                 update_json(self.conf_file_path, self.conf_params)
-            if self.conf_type == "ini":
+            elif self.conf_type == "ini":
                 update_ini(self.conf_file_path, self.conf_params)
+            elif self.conf_type == "yaml":
+                update_yaml(self.conf_file_path, self.conf_params)
 
     def configure_webserver(self):
         if self.domain:

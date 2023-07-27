@@ -1,5 +1,6 @@
 import json
 import configparser
+import yaml
 
 def update_ini(conf_file_path, conf_params):
     # Read the existing INI file
@@ -40,3 +41,13 @@ def update_json(conf_file_path, conf_params):
     # Write the updated configuration back to the JSON file
     with open(conf_file_path, 'w') as f:
         json.dump(config_file, f, indent=4)
+
+
+def update_yaml(conf_file_path, conf_params):
+    with open(conf_file_path, 'r') as f:
+        data = yaml.safe_load(f)
+    
+    data.update(conf_params)
+    
+    with open(conf_file_path, 'w') as f:
+        yaml.dump(data, f, sort_keys=False)
