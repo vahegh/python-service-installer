@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from os import path
 from passlib import pwd as pw
 from ..base.base_package import Package
 from ...utils.consts import SERVICE_BASE_DIR, SYSTEMD_BASE_DIR
@@ -22,3 +23,7 @@ class BinaryPackage(Package):
             self.db_user = self.pkg_name
             self.db_pass = pw.genword(entropy=None, length=12)
             self.db_port = "5432"
+        
+    @property
+    def is_installed(self):
+        return path.exists(self.service_dir)

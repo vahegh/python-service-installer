@@ -2,6 +2,7 @@ from os import environ as env
 from plumbum.cmd import curl
 from ..base.base_installer import Installer
 from .apt_package import cache
+from ..exceptions import VersionError
 
 env["DEBIAN_FRONTEND"] = "noninteractive"
 
@@ -21,9 +22,6 @@ class AptPackageInstaller(Installer):
       Installing the package itself
       Removing the package"""
 
-    def check_installed(self):
-        return self.pkg.is_installed
-    
     def configure_repo(self):
         if self.source_repo and self.gpg_url:
             print(f"Configuring apt repository for {self.title}")
@@ -34,22 +32,16 @@ class AptPackageInstaller(Installer):
                 f.write(self.source_repo)
             curl["-sL", "-o", {gpg_file_path}, {self.gpg_url}]
 
-    def set_version(self):
-        desired_version = next((x for x in self.pkg.versions if x.version == self.version), None)
-        if desired_version:
-            print(f"Setting version '{self.version}' for {self.title}")
-            self.pkg.candidate = desired_version
-        else:
-            print(f"Version '{self.version}' not available for {self.title}, defaulting to latest.")
-
     def install_service(self):
-        if self.check_installed():
+        if self.is_installed:
             print(f"{self.title} already installed")
-            print(f"Status: {self.status()}")
+            print(f"Status:", self.status)
         else:
             print(f"Installing service: {self.title}")
-            if self.version:
-                self.set_version()
+            if self.new_version:
+                self.pkg_version = self.new_version
+            else:
+                raise VersionError(f"Version '{self.version}' not available for {self.title}.")
             self.configure_repo()
             if self.dependencies:
                 self.install_dependencies()
@@ -62,7 +54,7 @@ class AptPackageInstaller(Installer):
             self.configure_service()
 
     def remove_service(self):
-        if not self.check_installed():
+        if not self.is_installed:
             print(f"{self.title} is not installed, so not removing it.")
 
         else:

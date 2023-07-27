@@ -11,9 +11,6 @@ from ...database_manager import configure_database, remove_database
 
 class BinaryInstaller(Installer):
 
-    def check_installed(self):
-        return path.exists(self.service_dir)
-
     def install_archive(self):
         if not path.isdir(self.service_dir):
             print(f"Creating {self.service_dir}...")
@@ -61,7 +58,7 @@ class BinaryInstaller(Installer):
         systemctl('enable', f'{self.pkg_name}.service')
 
     def install_service(self):
-        if self.check_installed():
+        if self.is_installed:
             print(f"{self.title} is already installed.")
 
         else:
@@ -81,7 +78,7 @@ class BinaryInstaller(Installer):
             print("Status:", self.status)
 
     def remove_service(self):
-        if not self.check_installed():
+        if not self.is_installed:
             print(f"{self.title} is not installed, so not removing it.")
 
         else:
