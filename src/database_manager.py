@@ -1,4 +1,5 @@
 from .utils.consts import *
+from .utils.exceptions import DbTypeError
 
 def run_db_commands(db_command, queries, variables):
     for q in queries:
@@ -16,7 +17,7 @@ def configure_db(db_type, db_user, db_pass, db_name):
         run_db_commands(POSTGRESQL_DB_COMMAND, POSTGRESQL_CONF_COMMANDS, variables)
     
     else:
-        print("Unsupported database.")
+        raise DbTypeError("Unsupported database.")
 
     print(f"""Configured database.
     Database: {db_name}
@@ -31,9 +32,6 @@ def remove_db(db_type, db_user, db_name):
 
     elif db_type in ["postgresql", "postgres", "psql"]:
         run_db_commands(POSTGRESQL_DB_COMMAND, POSTGRESQL_REMOVE_COMMANDS, variables)
-    
-    else:
-        print("Unsupported database.")
 
     print(f"""Removed database.
     Database: {db_name}
