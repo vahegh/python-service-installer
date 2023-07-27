@@ -4,6 +4,7 @@ from src.models.apt_models.apt_package import AptPackage
 from src.models.binary.binary_package import BinaryPackage
 from src.models.binary.binary_installer import BinaryInstaller
 from src.models.apt_models.apt_installer import AptPackageInstaller
+from utils.exceptions import InstallTypeError
 
 parser = ArgumentParser()
 parser.add_argument("-i", "--install", action="store_true", help="install service")
@@ -34,6 +35,8 @@ elif install_type =="binary":
     service = BinaryPackage(**install_settings)
     installer = BinaryInstaller(service)
 
+else:
+    raise InstallTypeError(f"Unsupported install type: {install_type}")
 
 def main():
     if args.install:
