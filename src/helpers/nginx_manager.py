@@ -1,4 +1,4 @@
-from .utils.consts import NGINX_DEFAULT_CONF_PATH
+from ..utils.consts import NGINX_DEFAULT_CONF_PATH
 from certbot.main import main as cert
 from plumbum.cmd import rm, systemctl
 

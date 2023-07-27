@@ -1,5 +1,5 @@
-from .utils.consts import *
-from .utils.exceptions import DbTypeError
+from ..utils.consts import *
+from ..utils.exceptions import DbTypeError
 
 def run_db_commands(db_command, queries, variables):
     for q in queries:
