@@ -1,0 +1,8 @@
+{
+    "install_type": "apt",
+    "install_settings": {
+        "title": "MySQL",
+        "pkg_name": "mysql-server",
+        "version": "8.0.33"
+    }
+}

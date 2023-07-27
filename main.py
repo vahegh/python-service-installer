@@ -9,13 +9,14 @@ parser = ArgumentParser()
 parser.add_argument("-i", "--install", action="store_true", help="install service")
 parser.add_argument("-r", "--remove", action="store_true", help="remove service")
 parser.add_argument("-s", "--status", action="store_true", help="check service status")
-parser.add_argument("-ci", "--check-installed", action="store_true",help="check whether service is installed")
+parser.add_argument("-ci", "--is-installed", action="store_true",help="check whether service is installed")
+parser.add_argument("-v", "--version", action="store_true", help="check service version")
 parser.add_argument("-f", "--file", help="specify configuration file")
 
 args = parser.parse_args()
 
-config_base_dir = "test/samples/"
-filename = args.file if args.file else "mattermost.json"
+config_base_dir = "samples/"
+filename = args.file if args.file else "mysql.json"
 
 configfile = config_base_dir + filename
 
@@ -25,7 +26,7 @@ with open(configfile, "r") as f:
 install_type = config["install_type"]
 install_settings = config["install_settings"]
 
-if install_type == "packagemanager":
+if install_type == "apt":
     service = AptPackage(**install_settings)
     installer = AptPackageInstaller(service)
 
@@ -44,8 +45,11 @@ def main():
     elif args.status:
         print(f"Status: {installer.status}")
     
-    elif args.check_installed:
-        print(f"Installed: {installer.check_installed()}")
+    elif args.is_installed:
+        print(f"Installed: {installer.is_installed}")
+    
+    elif args.version:
+        print(f"Version: {installer.pkg_version}")
 
     else:
         installer.install_service()
