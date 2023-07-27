@@ -35,7 +35,7 @@ class BinaryInstaller(Installer):
         else:
             print(f"{self.user_name} user and group exist.")
 
-    def configure_dirs(self):
+    def configure_data_dirs(self):
         print("Configuring directories...")
         for dir in self.data_dir:
             data_dir = f"{self.service_dir}/{dir}"
@@ -59,8 +59,10 @@ class BinaryInstaller(Installer):
         else:
             self.install_archive()
             self.create_user()
-            self.configure_dirs()
-            self.add_db_dependency()
+            if self.data_dir:
+                self.configure_data_dirs()
+            if self.database:
+                self.add_db_dependency()
             self.install_dependencies()
             if self.database:
                 configure_db(self.database, self.db_user, self.db_pass, self.db_name)
