@@ -6,16 +6,11 @@ from pystemd import dbusexc
 from plumbum.cmd import useradd, userdel, chown, chmod, systemctl, rm
 from ..base.base_installer import Installer
 from ...utils.consts import SERVICE_BASE_DIR
-from ...database_manager import configure_database, remove_database
-
+from ...database_manager import configure_db, remove_db
 
 class BinaryInstaller(Installer):
 
     def install_archive(self):
-        if not path.isdir(self.service_dir):
-            print(f"Creating {self.service_dir}...")
-            mkdir(self.service_dir)
-
         if not path.isfile(self.archive_file):
             print("Downloading archive...")
             response = requests.get(self.archive_url)
@@ -68,7 +63,7 @@ class BinaryInstaller(Installer):
             self.add_db_dependency()
             self.install_dependencies()
             if self.database:
-                configure_database(self.database, self.db_user, self.db_pass, self.db_name)
+                configure_db(self.database, self.db_user, self.db_pass, self.db_name)
             if self.domain:
                 self.configure_webserver()
             self.configure_systemd()
@@ -89,11 +84,11 @@ class BinaryInstaller(Installer):
             else:
                 systemctl('disable', f'{self.pkg_name}.service', retcode = (0, 1))
 
-            if self.database:
-                remove_database(self.database, self.db_user, self.db_name)
-            self.remove_dependencies()
-            self.remove_webserver()
             userdel(self.user_name, retcode = (0, 6))
             rm('-r', self.service_dir, retcode = (0, 1))
             rm(self.systemd_file_path, retcode = (0, 1))
+            if self.database:
+                remove_db(self.database, self.db_user, self.db_name)
+            self.remove_dependencies()
+            self.remove_webserver()
             print(f"Removed {self.title}.")

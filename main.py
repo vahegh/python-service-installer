@@ -16,7 +16,7 @@ parser.add_argument("-f", "--file", help="specify configuration file")
 args = parser.parse_args()
 
 config_base_dir = "samples/"
-filename = args.file if args.file else "mysql.json"
+filename = args.file if args.file else "mattermost.json"
 
 configfile = config_base_dir + filename
 

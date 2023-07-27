@@ -12,7 +12,7 @@ class AptPackage(Package):
     def __post_init__(self):
         super().__post__init__()
         self.pkg = cache[self.pkg_name]
-        self.new_version = next((x for x in self.pkg.versions if self.version in x.version), None)
+        self.new_version = next((x for x in self.pkg.versions if self.version in x.version), None) if self.version else None
     
     @property
     def is_installed(self):

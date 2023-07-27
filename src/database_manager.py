@@ -7,7 +7,7 @@ def run_db_commands(db_command, queries, variables):
         command()
 
 
-def configure_database(db_type, db_user, db_pass, db_name):
+def configure_db(db_type, db_user, db_pass, db_name):
     variables = vars()
     if db_type in ["mysql", "mariadb", "maria"]:
         run_db_commands(MYSQL_DB_COMMAND, MYSQL_CONF_COMMANDS, variables)
@@ -24,7 +24,7 @@ def configure_database(db_type, db_user, db_pass, db_name):
     Password: {db_pass}""")
 
 
-def remove_database(db_type, db_user, db_name):
+def remove_db(db_type, db_user, db_name):
     variables = vars()
     if db_type in ["mysql", "mariadb", "maria"]:
         run_db_commands(MYSQL_DB_COMMAND, MYSQL_REMOVE_COMMANDS, variables)
@@ -41,4 +41,4 @@ def remove_database(db_type, db_user, db_name):
 
 
 if __name__ == "__main__":
-    remove_database("psql", "test123", "test123")
+    remove_db("psql", "test123", "test123")
