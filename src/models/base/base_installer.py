@@ -65,11 +65,10 @@ class Installer(ABC):
             for section in self.conf_params:
                 for key in self.conf_params[section]:
                     self.conf_params[section][key] = self.conf_params[section][key].format(**vars(self.package))
-
-        if self.conf_type == "json":
-            update_json(self.conf_file_path, self.conf_params)
-        if self.conf_type == "ini":
-            update_ini(self.conf_file_path, self.conf_params)
+            if self.conf_type == "json":
+                update_json(self.conf_file_path, self.conf_params)
+            if self.conf_type == "ini":
+                update_ini(self.conf_file_path, self.conf_params)
 
     def configure_webserver(self):
         if self.domain:
