@@ -23,14 +23,13 @@ class AptPackageInstaller(Installer):
       Removing the package"""
 
     def configure_repo(self):
-        if self.source_repo and self.gpg_url:
-            print(f"Configuring apt repository for {self.title}")
-            source_list_path = f"/etc/apt/sources.list.d/{self.pkg_name}.list"
-            gpg_file_path = f"/etc/apt/trusted.gpg.d/{self.pkg_name}.asc"
+        print(f"Configuring apt repository for {self.title}")
+        source_list_path = f"/etc/apt/sources.list.d/{self.pkg_name}.list"
+        gpg_file_path = f"/etc/apt/trusted.gpg.d/{self.pkg_name}.asc"
 
-            with open(source_list_path, "w") as f:
-                f.write(self.source_repo)
-            curl["-sL", "-o", {gpg_file_path}, {self.gpg_url}]
+        with open(source_list_path, "w") as f:
+            f.write(self.source_repo)
+        curl["-sL", "-o", {gpg_file_path}, {self.gpg_url}]
 
     def install_service(self):
         if self.is_installed:
@@ -38,16 +37,21 @@ class AptPackageInstaller(Installer):
             print(f"Status:", self.status)
         else:
             print(f"Installing service: {self.title}")
+
             if self.new_version:
                 self.pkg_version = self.new_version
             else:
                 raise VersionError(f"Version '{self.version}' not available for {self.title}.")
-            self.configure_repo()
+            
+            if self.source_repo and self.gpg_url:
+                self.configure_repo()
+            
             if self.dependencies:
                 self.install_dependencies()
             else:
                 cache.update(raise_on_error=False)
                 cache.open()
+            
             self.pkg.mark_install()
             cache.commit()
             cache.close()
