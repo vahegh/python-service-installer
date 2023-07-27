@@ -5,7 +5,6 @@ import distro
 
 mb = 1048576
 
-
 os_title = distro.name()
 os_name = distro.id()
 os_version = distro.version()
@@ -22,6 +21,10 @@ free_disk_space = int(disk_usage('/').free / mb)
 
 external_ip = get('https://api.ipify.org').content.decode('utf8')
 
+with open("/sys/class/dmi/id/product_uuid", 'r') as f:
+    p = f.read()
+    product_uuid = p.splitlines()[0]
+
 print(f"""
 Linux distribution: {os_name}
 OS version: {os_version}
@@ -37,4 +40,6 @@ Total disk space: {total_disk_space}
 Free disk space: {free_disk_space}
 
 External IP address: {external_ip}
+
+Product UUID: {product_uuid}
 """)
