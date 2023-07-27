@@ -16,7 +16,7 @@ parser.add_argument("-f", "--file", help="specify configuration file")
 
 args = parser.parse_args()
 
-config_base_dir = "samples/"
+config_base_dir = "/home/vahe/Mine/python-service-installer/samples/"
 filename = args.file if args.file else "prometheus.json"
 
 configfile = config_base_dir + filename
