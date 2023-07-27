@@ -30,7 +30,6 @@
         },
         "data_dir": "",
         "database": "",
-
         "source_repo": "",
         "gpg_url": ""
     }

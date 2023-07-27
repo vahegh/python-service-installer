@@ -2,7 +2,6 @@ from ..utils.consts import NGINX_DEFAULT_CONF_PATH
 from certbot.main import main as cert
 from plumbum.cmd import rm, systemctl
 
-
 def configure_nginx(file_path, domain, upstream_address):
     print(f"Configuring Nginx...")
     with open(NGINX_DEFAULT_CONF_PATH, 'r') as f:
