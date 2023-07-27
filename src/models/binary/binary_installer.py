@@ -1,9 +1,9 @@
 from os import path, mkdir
+import tarfile
 import requests
-from apt_inst import TarFile
 import pwd, grp
 from pystemd import dbusexc
-from plumbum.cmd import useradd, userdel, chown, chmod, systemctl, rm
+from plumbum.cmd import useradd, userdel, chown, chmod, systemctl, rm, mv
 from ..base.base_installer import Installer
 from ...utils.consts import SERVICE_BASE_DIR
 from ...helpers.database_manager import configure_db, remove_db
@@ -20,7 +20,14 @@ class BinaryInstaller(Installer):
                 f.write(response.content)
 
         print(f"Extracting archive to {self.service_dir}...")
-        TarFile(self.archive_file).extractall(SERVICE_BASE_DIR)
+        tar_file = tarfile.open(self.archive_file)
+        dir_name = tar_file.getmembers()[0].name
+        if not dir_name == self.pkg_name:
+            archive_file_dir = f"{SERVICE_BASE_DIR}/{dir_name}"
+            tar_file.extractall(SERVICE_BASE_DIR)
+            mv(archive_file_dir, self.service_dir)
+        else:
+            tar_file.extractall(SERVICE_BASE_DIR)
         # remove(self.archive_file)
 
     def create_user(self):
