@@ -18,7 +18,6 @@ class Package():
     database: str = None
     force_install: bool = None
 
-
     def __post__init__(self):
         if self.domain:
             self.nginx_file_path = f"{NGINX_BASE_DIR}/{self.pkg_name}.conf"
