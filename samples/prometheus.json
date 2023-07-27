@@ -7,15 +7,7 @@
         "dependencies": [],
         "conf_type": "yaml",
         "conf_file_path": "prometheus.yml",
-        "conf_params": {
-            "SqlSettings": {
-                "DriverName": "{database}",
-                "DataSource": "{database}://{db_user}:{db_pass}@localhost:{db_port}/{db_name}?sslmode=disable"
-            },
-            "ServiceSettings": {
-                "SiteURL": "localhost:8065"
-            }
-        },
+        "conf_params": {},
         "domain": "prometheus.vahe.fun",
         "ssl_email": "vahe.55101@gmail.com",
         "upstream_address": "localhost:9090",
