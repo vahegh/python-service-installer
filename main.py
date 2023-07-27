@@ -4,7 +4,7 @@ from src.models.apt_models.apt_package import AptPackage
 from src.models.binary.binary_package import BinaryPackage
 from src.models.binary.binary_installer import BinaryInstaller
 from src.models.apt_models.apt_installer import AptPackageInstaller
-from utils.exceptions import InstallTypeError
+from src.utils.exceptions import InstallTypeError
 
 parser = ArgumentParser()
 parser.add_argument("-i", "--install", action="store_true", help="install service")
@@ -17,7 +17,7 @@ parser.add_argument("-f", "--file", help="specify configuration file")
 args = parser.parse_args()
 
 config_base_dir = "samples/"
-filename = args.file if args.file else "mattermost.json"
+filename = args.file if args.file else "prometheus.json"
 
 configfile = config_base_dir + filename
 
