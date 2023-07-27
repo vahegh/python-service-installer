@@ -14,3 +14,6 @@ class VersionError(InstallError):
 
 class DbTypeError(InstallError):
     """Raised when an unsupported database is selected"""
+
+class InstallTypeError(InstallError):
+    """Raised when an unsupported install type is selected"""

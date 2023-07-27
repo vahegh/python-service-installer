@@ -2,7 +2,7 @@ from os import environ as env
 from plumbum.cmd import curl
 from ..base.base_installer import Installer
 from .apt_package import cache
-from ..exceptions import VersionError
+from ...utils.exceptions import VersionError
 
 env["DEBIAN_FRONTEND"] = "noninteractive"
 
