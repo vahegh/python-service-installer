@@ -4,6 +4,7 @@ from ..apt_models.apt_package import AptPackage
 from ..apt_models.apt_package import cache
 from ...nginx_manager import configure_nginx, configure_ssl, remove_webserver_conf
 from ...utils.consts import MYSQL_PARAMS_APT, POSTGRESQL_PARAMS_APT
+from ..exceptions import DbTypeError
 
 class Installer(ABC):
 
@@ -57,7 +58,7 @@ class Installer(ABC):
             self.dependencies.append(POSTGRESQL_PARAMS_APT)
         
         else:
-            print("Unsupported database.")
+            raise DbTypeError(f"Unsupported database '{self.database}'")
 
     def configure_service(self):
         if self.conf_params:

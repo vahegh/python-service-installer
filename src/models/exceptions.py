@@ -10,3 +10,7 @@ class DependencyConflictError(InstallError):
 
 class VersionError(InstallError):
     """Raised when the specified version doesn't exist for the package to be installed"""
+
+
+class DbTypeError(InstallError):
+    """Raised when an unsupported database is selected"""
