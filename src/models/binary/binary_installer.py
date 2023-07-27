@@ -6,7 +6,7 @@ from pystemd import dbusexc
 from plumbum.cmd import useradd, userdel, chown, chmod, systemctl, rm
 from ..base.base_installer import Installer
 from ...utils.consts import SERVICE_BASE_DIR
-from ...database_manager import configure_db, remove_db
+from ...helpers.database_manager import configure_db, remove_db
 
 class BinaryInstaller(Installer):
 

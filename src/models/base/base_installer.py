@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
-from ...config_manager import update_json, update_ini, update_yaml
+from ...helpers.config_manager import update_json, update_ini, update_yaml
 from ..apt_models.apt_package import AptPackage
 from ..apt_models.apt_package import cache
-from ...nginx_manager import configure_nginx, configure_ssl, remove_webserver_conf
+from ...helpers.nginx_manager import configure_nginx, configure_ssl, remove_webserver_conf
 from ...utils.consts import MYSQL_PARAMS_APT, POSTGRESQL_PARAMS_APT
 from ...utils.exceptions import DbTypeError
 
