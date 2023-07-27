@@ -51,9 +51,6 @@ def main():
     elif args.version:
         print(f"Version: {installer.pkg_version}")
 
-    else:
-        installer.install_service()
-
 
 if __name__ == "__main__":
     main()
