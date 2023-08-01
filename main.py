@@ -14,6 +14,7 @@ parser.add_argument("-s", "--status", action="store_true", help="check service s
 parser.add_argument("-ci", "--is-installed", action="store_true",help="check whether service is installed")
 parser.add_argument("-v", "--version", action="store_true", help="check service version")
 parser.add_argument("-f", "--file", help="specify configuration file")
+parser.add_argument("-sr", "--service-exists", action="store_true", help="check if systemd service exists")
 
 args = parser.parse_args()
 
@@ -51,13 +52,16 @@ def main():
         installer.remove_service()
     
     elif args.status:
-        print(f"Status: {installer.status}")
+        print(installer.status)
     
     elif args.is_installed:
-        print(f"Installed: {installer.is_installed}")
+        print(installer.is_installed)
     
     elif args.version:
         print(f"Version: {installer.pkg_version}")
+
+    elif args.service_exists:
+        print(installer.service_exists())
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@ from os import path, mkdir
 import tarfile
 import requests
 import pwd
-from pystemd import dbusexc
+from pystemd.dbusexc import DBusNoSuchUnitError
 from plumbum.cmd import useradd, userdel, chown, chmod, systemctl, rm, mv
 from ..base.base_installer import Installer
 from ...utils.consts import SERVICE_BASE_DIR
@@ -53,7 +53,7 @@ class BinaryInstaller(Installer):
         print("Configuring systemd service...")
         with open (self.systemd_file_path, "w") as f:
             f.write(self.service_file_data)
-        systemctl('enable', f'{self.pkg_name}.service')
+        self.enable_service()
 
     def install_service(self):
         if self.is_installed:
@@ -74,7 +74,8 @@ class BinaryInstaller(Installer):
                 configure_db(self.database, self.db_user, self.db_pass, self.db_name)
             if self.domain:
                 self.configure_webserver()
-            self.configure_systemd()
+            if self.systemd_file_path:
+                self.configure_systemd()
             if self.conf_params:
                 self.configure_service()
             self.systemd.Unit.Start(b'replace')
@@ -88,10 +89,10 @@ class BinaryInstaller(Installer):
         else:
             try:
                 self.systemd.Unit.Stop(b'replace')
-            except dbusexc.DBusNoSuchUnitError:
-                print(f"{self.title} unit doesn't exist, so not disabling it.")
+            except DBusNoSuchUnitError:
+                print(f"{self.title} unit doesn't exist, so not stopping it.")
             else:
-                systemctl('disable', f'{self.pkg_name}.service', retcode = (0, 1))
+                self.disable_service()
 
             userdel(self.user_name, retcode = (0, 6))
             rm('-r', self.service_dir, retcode = (0, 1))

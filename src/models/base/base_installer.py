@@ -48,12 +48,27 @@ class Installer(ABC):
     def remove_service(self):
         pass
 
+    def enable_service(self):
+        if self.service_exists():
+            self.manager.Manager.EnableUnitFiles([self.unit_bytes])
+        else:
+            print(f"Service {self.pkg_name} doesn't exist, so not enabling it")
+
+    def disable_service(self):
+        if self.service_exists():
+            self.manager.Manager.DisableUnitFiles([self.unit_bytes], True)
+        else:
+            print(f"Service {self.pkg_name} doesn't exist, so not disabling it")
+
+
     def add_db_dependency(self):
         if self.database in ["mysql", "mariadb", "maria"]:
             self.dependencies.append(MYSQL_PARAMS_APT)
+            self.package.db_port = 3306
 
         elif self.database in ["postgresql", "postgres", "psql"]:
             self.dependencies.append(POSTGRESQL_PARAMS_APT)
+            self.package.db_port = 5432
         
         else:
             raise DbTypeError(f"Unsupported database '{self.database}'")
@@ -75,4 +90,5 @@ class Installer(ABC):
             configure_ssl(self.domain, self.ssl_email)
 
     def remove_webserver(self):
-        remove_webserver_conf(self.nginx_file_path)
+        if self.domain:
+            remove_webserver_conf(self.nginx_file_path)
