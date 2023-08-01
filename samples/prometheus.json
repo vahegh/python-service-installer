@@ -8,7 +8,7 @@
         "conf_type": "yaml",
         "conf_file_path": "prometheus.yml",
         "conf_params": {},
-        "domain": "prometheus.vahe.fun",
+        "domain": "",
         "ssl_email": "vahe.55101@gmail.com",
         "upstream_address": "localhost:9090",
         "database": "",
