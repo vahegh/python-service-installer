@@ -8,7 +8,7 @@ from ...utils.exceptions import DbTypeError
 
 class Installer(ABC):
 
-    def __init__(self, package: AptPackage) -> None:
+    def __init__(self, package) -> None:
         self.package = package
 
     def __getattr__(self, attr):
