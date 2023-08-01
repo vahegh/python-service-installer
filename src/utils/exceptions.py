@@ -1,6 +1,11 @@
 class InstallError(Exception):
     """Base exception related to service installation"""
 
+class DockerError(Exception):
+    """Base exception related to dockerized installation"""
+
+
+
 class DependencyConflictError(InstallError):
     """Raised when a service dependency is already present on the host machine"""
     pass
@@ -13,3 +18,7 @@ class DbTypeError(InstallError):
 
 class InstallTypeError(InstallError):
     """Raised when an unsupported install type is selected"""
+    
+
+class ContainerNameInUseError(DockerError):
+    """Raised when a Docker container with the provided name already exists."""

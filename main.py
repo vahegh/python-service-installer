@@ -4,6 +4,7 @@ from src.models.apt_models.apt_package import AptPackage
 from src.models.binary.binary_package import BinaryPackage
 from src.models.binary.binary_installer import BinaryInstaller
 from src.models.apt_models.apt_installer import AptPackageInstaller
+from src.models.docker.docker_installer import DockerInstaller
 from src.utils.exceptions import InstallTypeError
 
 parser = ArgumentParser()
@@ -35,8 +36,12 @@ elif install_type =="binary":
     service = BinaryPackage(**install_settings)
     installer = BinaryInstaller(service)
 
+elif install_type == "docker":
+    installer = DockerInstaller(**install_settings)
+
 else:
     raise InstallTypeError(f"Unsupported install type: {install_type}")
+
 
 def main():
     if args.install:

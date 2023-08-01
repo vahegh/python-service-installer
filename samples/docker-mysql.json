@@ -1,0 +1,19 @@
+[
+    {
+        "image": "mysql:8.0.34",
+        "name": "mysql-production",
+        "environment": {
+            "MYSQL_ROOT_PASSWORD": "password1234",
+            "MYSQL_USER": "test-user",
+            "MYSQL_PASSWORD": "test123!",
+            "MYSQL_DATABASE": "test-database"
+        },
+        "mem_limit": "512m",
+        "network_mode": "bridge",
+        "remove": true,
+        "restart_policy": {
+            "Name": "on-failure",
+            "MaximumRetryCount": 5
+        }
+    }
+]
