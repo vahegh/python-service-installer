@@ -3,6 +3,8 @@ from pystemd.systemd1 import Unit, Manager
 from pystemd.dbusexc import DBusNoSuchUnitError
 from ...utils.consts import NGINX_BASE_DIR, NGINX_PARAMS_APT
 
+manager = Manager(_autoload = True)
+
 @dataclass
 class Package():
     title: str # User choice (service name)
@@ -24,9 +26,9 @@ class Package():
             self.nginx_file_path = f"{NGINX_BASE_DIR}/{self.pkg_name}.conf"
             self.dependencies.extend(NGINX_PARAMS_APT)
 
-        self.unit_bytes = f"{self.pkg_name}.service".encode()
-        self.systemd = Unit(self.unit_bytes.decode())
-        self.systemd.load()
+        self.unit_str = f"{self.pkg_name}.service"
+        self.unit_bytes = self.unit_str.encode()
+        self.systemd = Unit(self.unit_str, _autoload = True)
 
         self.db_port = None
 
@@ -39,11 +41,10 @@ class Package():
             return("unavailable")
 
     def service_exists(self):
-        with Manager() as manager:
-            try:
-                manager.Manager.GetUnit(self.unit_bytes)
+        try:
+            manager.Manager.GetUnit(self.unit_bytes)
 
-            except DBusNoSuchUnitError:
-                return False
-            else:
-                return True
+        except DBusNoSuchUnitError:
+            return False
+        else:
+            return True

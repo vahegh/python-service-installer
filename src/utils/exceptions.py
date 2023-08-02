@@ -4,6 +4,8 @@ class InstallError(Exception):
 class DockerError(Exception):
     """Base exception related to dockerized installation"""
 
+class SystemdError(Exception):
+    """Base exception related to systemd service manipulation"""
 
 
 class DependencyConflictError(InstallError):
@@ -22,3 +24,7 @@ class InstallTypeError(InstallError):
 
 class ContainerNameInUseError(DockerError):
     """Raised when a Docker container with the provided name already exists."""
+
+
+class ServiceActionError(SystemdError):
+    """Raised when an unsupported action is performed on a systemd service"""

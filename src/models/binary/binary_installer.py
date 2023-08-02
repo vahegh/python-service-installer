@@ -3,8 +3,9 @@ import tarfile
 import requests
 import pwd
 from pystemd.dbusexc import DBusNoSuchUnitError
-from plumbum.cmd import useradd, userdel, chown, chmod, systemctl, rm, mv
+from plumbum.cmd import useradd, userdel, chown, chmod, rm, mv
 from ..base.base_installer import Installer
+from ..base.base_package import manager
 from ...utils.consts import SERVICE_BASE_DIR
 from ...helpers.database_manager import configure_db, remove_db
 
@@ -53,7 +54,7 @@ class BinaryInstaller(Installer):
         print("Configuring systemd service...")
         with open (self.systemd_file_path, "w") as f:
             f.write(self.service_file_data)
-        self.enable_service()
+        self.service_action("Load")
 
     def install_service(self):
         if self.is_installed:
@@ -78,7 +79,9 @@ class BinaryInstaller(Installer):
                 self.configure_systemd()
             if self.conf_params:
                 self.configure_service()
-            self.systemd.Unit.Start(b'replace')
+            self.service_action("Start")
+            self.service_action("Enable")
+
             print(f"Installed {self.title}.")
             print("Status:", self.status)
 
@@ -87,18 +90,22 @@ class BinaryInstaller(Installer):
             print(f"{self.title} is not installed, so not removing it.")
 
         else:
-            try:
-                self.systemd.Unit.Stop(b'replace')
-            except DBusNoSuchUnitError:
-                print(f"{self.title} unit doesn't exist, so not stopping it.")
-            else:
-                self.disable_service()
-
+            self.service_action("Stop")
+            self.service_action("Disable")
+            
+            print(f"Removing user {self.user_name}...")
             userdel(self.user_name, retcode = (0, 6))
+            
+            print(f"Purging {self.service_dir}...")
             rm('-r', self.service_dir, retcode = (0, 1))
+
             rm(self.systemd_file_path, retcode = (0, 1))
+            self.service_action("Reload")
+
             if self.database:
                 remove_db(self.database, self.db_user, self.db_name)
+
             self.remove_dependencies()
             self.remove_webserver()
+
             print(f"Removed {self.title}.")
