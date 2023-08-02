@@ -2,9 +2,10 @@ from abc import ABC, abstractmethod
 from ...helpers.config_manager import update_json, update_ini, update_yaml
 from ..apt_models.apt_package import AptPackage
 from ..apt_models.apt_package import cache
+from ..base.base_package import manager, DBusNoSuchUnitError
 from ...helpers.nginx_manager import configure_nginx, configure_ssl, remove_webserver_conf
 from ...utils.consts import MYSQL_PARAMS_APT, POSTGRESQL_PARAMS_APT
-from ...utils.exceptions import DbTypeError
+from ...utils.exceptions import DbTypeError, ServiceActionError
 
 class Installer(ABC):
 
@@ -48,18 +49,36 @@ class Installer(ABC):
     def remove_service(self):
         pass
 
-    def enable_service(self):
-        if self.service_exists():
-            self.manager.Manager.EnableUnitFiles([self.unit_bytes])
-        else:
-            print(f"Service {self.pkg_name} doesn't exist, so not enabling it")
+    def service_action(self, action):
+        try:
+            if action == "Start":
+                print(f"Starting {self.unit_str}...")
+                self.systemd.Unit.Start(b'replace')
+            elif action == "Restart":
+                print(f"Restarting {self.unit_str}...")
+                self.systemd.Unit.Restart(b'replace') 
+            elif action == "Stop":
+                print(f"Stopping {self.unit_str}...")
+                self.systemd.Unit.Stop(b'replace')
+            elif action == "Enable":
+                print(f"Enabling {self.unit_str}...")
+                manager.Manager.EnableUnitFiles([self.unit_bytes], True, True)   
+            elif action == "Disable":     
+                print(f"Disabling {self.unit_str}...")
+                manager.Manager.DisableUnitFiles([self.unit_bytes], True)
+            elif action == "Load":
+                print(f"Loading {self.unit_str}...")
+                manager.Manager.LoadUnit(self.unit_bytes)
+                manager.load()
+            elif action == "Reload":
+                manager.Manager.Reload()
+                manager.load()
 
-    def disable_service(self):
-        if self.service_exists():
-            self.manager.Manager.DisableUnitFiles([self.unit_bytes], True)
-        else:
-            print(f"Service {self.pkg_name} doesn't exist, so not disabling it")
+            else:
+                raise ServiceActionError(f"Unsupported action '{action}'")
 
+        except DBusNoSuchUnitError:
+            print(f"Failed to {action} {self.unit_str}")
 
     def add_db_dependency(self):
         if self.database in ["mysql", "mariadb", "maria"]:
