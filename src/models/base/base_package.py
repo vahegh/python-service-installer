@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from pydantic.dataclasses import dataclass
 from pystemd.systemd1 import Unit, Manager
 from pystemd.dbusexc import DBusNoSuchUnitError
 from ...utils.consts import NGINX_BASE_DIR, NGINX_PARAMS_APT
@@ -7,18 +7,18 @@ manager = Manager(_autoload = True)
 
 @dataclass
 class Package():
-    title: str # User choice (service name)
+    title: str
     pkg_name: str
-    version: str = None # User choice
+    version: str = None
     dependencies: list = None
     conf_type: str = None
     conf_file_path: str = None
     conf_params: dict = None
-    domain: str = None # User input
-    ssl_email: str = None # User input
+    domain: str = None
+    ssl_email: str = None
     upstream_address: str = None
     data_dir: list = None
-    database: str = None # User choice
+    database: str = None
     force_install: bool = None
 
     def __post__init__(self):

@@ -1,7 +1,6 @@
-from dataclasses import dataclass
 from os import path
 from passlib import pwd as pw
-from ..base.base_package import Package
+from ..base.base_package import Package, dataclass
 from ...utils.consts import SERVICE_BASE_DIR, SYSTEMD_BASE_DIR
 
 @dataclass

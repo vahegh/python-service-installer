@@ -1,5 +1,4 @@
-from ..base.base_package import Package
-from dataclasses import dataclass
+from ..base.base_package import Package, dataclass
 import apt
 
 cache = apt.Cache()
