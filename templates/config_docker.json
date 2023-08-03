@@ -1,13 +1,63 @@
-[
-    {
-        "image": "",
-        "name": "",
-        "network": "",
-        "volumes": "",
-        "environment": {
-            "A": "value1",
-            "B": "value2",
-            "C": "value3"
+{
+    "image": "mysql:8.0.34", 
+    "name": "mysql-production", 
+    
+    "entrypoint": [
+        "/bin/bash",
+        "mysql",
+        "-e "
+    ],
+    
+    "command": [
+        "\"CREATE DATABASE test;\""
+    ],
+    
+    "environment": {
+        "MYSQL_ROOT_PASSWORD": "password1234",
+        "MYSQL_USER": "user1",
+        "key1": "value",
+        "key2": "value"
+    },
+
+    "healthcheck": {
+        "test": "curl localhost:8080", 
+        "interval": 100000000000,
+        "timeout": 10000000000,
+        "retries": 5,
+        "start_period": 100000000000
+    },
+
+    "mem_limit": "512m", 
+    "network": "my_network1", 
+
+    "network_mode": [
+        "bridge",
+        "none",
+        "host" 
+    ],
+
+    "ports": {
+        "5000/tcp": 443,
+        "8080/tcp": 8080 
+    },
+
+    "privileged": true, 
+    "read_only": true, 
+    "remove": true, 
+
+    "restart_policy": {
+        "Name": ["on-failure", "always"], 
+        "MaximumRetryCount": 5 
+    },
+
+    "user": "mysql-user", 
+    "volume_driver": "sshfs", 
+    "volumes": {
+        "/home/user1": { 
+            "bind": "/mnt/vol2", 
+            "mode": "rw"
         }
-    }
-]
+    },
+
+    "working_dir": "/opt/" 
+}
