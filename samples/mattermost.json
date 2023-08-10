@@ -1,27 +1,25 @@
 {
-    "install_settings": {
-        "install_type": "binary",
-        "title": "Mattermost",
-        "pkg_name": "mattermost",
-        "dependencies": [],
-        "conf_type": "json",
-        "conf_file_path": "config/config.json",
-        "conf_params": {
-            "SqlSettings": {
-                "DriverName": "{database}",
-                "DataSource": "{database}://{db_user}:{db_pass}@localhost:{db_port}/{db_name}?sslmode=disable"
-            },
-            "ServiceSettings": {
-                "SiteURL": "localhost:8065"
-            }
+    "install_type": "binary",
+    "title": "Mattermost",
+    "pkg_name": "mattermost",
+    "dependencies": [],
+    "conf_type": "json",
+    "conf_file_path": "config/config.json",
+    "conf_params": {
+        "SqlSettings": {
+            "DriverName": "{database}",
+            "DataSource": "{database}://{db_user}:{db_pass}@localhost:{db_port}/{db_name}?sslmode=disable"
         },
-        "upstream_address": "localhost:8065",
-        "archive_url": "https://releases.mattermost.com/{version}/mattermost-{version}-linux-amd64.tar.gz",
-        "data_dir": ["data"],
-        "service_file_data": "[Unit]\nDescription=Mattermost\nAfter=network.target\n\n[Service]\nType=notify\nExecStart=/opt/mattermost/bin/mattermost\nTimeoutStartSec=3600\nKillMode=mixed\nRestart=always\nRestartSec=10\nWorkingDirectory=/opt/mattermost\nUser=mattermost\nGroup=mattermost\nLimitNOFILE=49152\n\n[Install]\nWantedBy=multi-user.target"
+        "ServiceSettings": {
+            "SiteURL": "localhost:8065"
+        }
     },
+    "upstream_address": "localhost:8065",
+    "archive_url": "https://releases.mattermost.com/{version}/mattermost-{version}-linux-amd64.tar.gz",
+    "data_dir": ["data"],
+    "service_file_data": "[Unit]\nDescription=Mattermost\nAfter=network.target\n\n[Service]\nType=notify\nExecStart=/opt/mattermost/bin/mattermost\nTimeoutStartSec=3600\nKillMode=mixed\nRestart=always\nRestartSec=10\nWorkingDirectory=/opt/mattermost\nUser=mattermost\nGroup=mattermost\nLimitNOFILE=49152\n\n[Install]\nWantedBy=multi-user.target",
     
-    "user_params": {
+    "user_parameters": {
         "version": "7.10.2",
         "database": "postgres",
         "domain": "mattermost.vahe.fun",

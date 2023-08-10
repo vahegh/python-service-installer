@@ -1,4 +1,4 @@
-from json import load
+from json import load, dumps
 from argparse import ArgumentParser
 from src.models.apt_models.apt_package import AptPackage
 from src.models.binary.binary_package import BinaryPackage
@@ -18,16 +18,15 @@ parser.add_argument("-sr", "--service-exists", action="store_true", help="check 
 
 args = parser.parse_args()
 
-config_base_dir = "/home/vahe/Mine/python-service-installer/samples/"
-filename = args.file if args.file else "prometheus.json"
-
-configfile = config_base_dir + filename
+configfile = args.file
 
 with open(configfile, "r") as f:
     config = load(f)
 
-install_type = config["install_type"]
-install_settings = config["install_settings"]
+install_settings = {**config, **config["user_parameters"]}
+del install_settings["user_parameters"]
+
+install_type = install_settings["install_type"]
 
 if install_type == "apt":
     service = AptPackage(**install_settings)
