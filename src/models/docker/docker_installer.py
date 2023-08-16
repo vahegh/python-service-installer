@@ -16,22 +16,37 @@ class DockerInstaller(BaseModel):
         if not self.name:
             self.name = self.image
 
-    @field_validator("name")   
-    def check_name(cls, name):
+    def install_service(self):
         try:
-            client.containers.get(name)
-            raise ContainerNameInUseError(f"Container with name '{name}' already exists.")
-        
+            client.containers.get(self.name)
         except docker.errors.NotFound:
-            return name
+            args = self.model_dump()
+            container = client.containers.run(detach=True,**args)
+            print(f"""Successfully started container 
+        ID: {container.id}
+        Name: {self.name}
+    """)
+        else:
+            raise ContainerNameInUseError(f"Container '{self.name}' already exists")
 
-    def run_container(self):
-        args = self.model_dump()
-        container = client.containers.run(detach=True,**args)
-        return f"""Successfully started container. 
-    ID: {container.id}
-    Name: {self.name}
-"""
+    def remove_service(self):
+        try:
+            container = client.containers.get(self.name)
+        except docker.errors.NotFound:
+            print(f"Container '{self.name}' doesn't exist")
+        else:
+            container.remove(force=True)
+            print(f"Removed container '{self.name}'")
+
+    @property
+    def status(self):
+        try:
+            container = client.containers.get(self.name)
+        except docker.errors.NotFound:
+            print(f"Container '{self.name}' doesn't exist")
+        else:
+            print(container.status)
+
     def stop_container(self):
         container = client.containers.get(self.name)
         container.stop()
