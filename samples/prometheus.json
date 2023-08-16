@@ -1,18 +1,16 @@
 {
-    "install_settings": {
-        "install_type": "binary",
-        "title": "Prometheus",
-        "pkg_name": "prometheus",
-        "dependencies": [],
-        "conf_type": "yaml",
-        "conf_file_path": "prometheus.yml",
-        "conf_params": {},
-        "upstream_address": "localhost:9090",
-        "database": "",
-        "archive_url": "https://github.com/prometheus/prometheus/releases/download/v{version}/prometheus-{version}.linux-amd64.tar.gz",
-        "data_dir": ["data"],
-        "service_file_data": "[Unit]\nDescription=Prometheus\n\n[Service]\nRestart=always\nUser=prometheus\nExecStart=\/opt\/prometheus\/prometheus --config.file=\/opt\/prometheus\/prometheus.yml --storage.tsdb.path=\/opt\/prometheus\/data\nExecReload=\/bin\/kill -HUP $MAINPID\nTimeoutStopSec=20s\nSendSIGKILL=no\nLimitNOFILE=8192\n\n[Install]\nWantedBy=multi-user.target"
-    },
+    "install_type": "binary",
+    "title": "Prometheus",
+    "pkg_name": "prometheus",
+    "dependencies": [],
+    "conf_type": "yaml",
+    "conf_file_path": "prometheus.yml",
+    "conf_params": {},
+    "upstream_address": "localhost:9090",
+    "database": "",
+    "archive_url": "https://github.com/prometheus/prometheus/releases/download/v{version}/prometheus-{version}.linux-amd64.tar.gz",
+    "data_dir": ["data"],
+    "service_file_data": "[Unit]\nDescription=Prometheus\n\n[Service]\nRestart=always\nUser=prometheus\nExecStart=\/opt\/prometheus\/prometheus --config.file=\/opt\/prometheus\/prometheus.yml --storage.tsdb.path=\/opt\/prometheus\/data\nExecReload=\/bin\/kill -HUP $MAINPID\nTimeoutStopSec=20s\nSendSIGKILL=no\nLimitNOFILE=8192\n\n[Install]\nWantedBy=multi-user.target",
     
     "user_parameters": {
         "version": "2.46.0",
