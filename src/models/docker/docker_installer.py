@@ -45,7 +45,7 @@ class DockerInstaller(BaseModel):
         except docker.errors.NotFound:
             print(f"Container '{self.name}' doesn't exist")
         else:
-            print(container.status)
+            return container.status
 
     def stop_container(self):
         container = client.containers.get(self.name)
